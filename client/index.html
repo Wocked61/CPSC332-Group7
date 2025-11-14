@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/script.js"></script>
+</head>
+<body>
+    <div class ="container">
+        <div class="header">
+            <h1> Library Management System </h1>
+        </div>
+
+        <div class="navbar">
+            <button class="nav-tab active" onclick="showTab('home')">Home</button>
+            <button class="nav-tab" onclick="showTab('books')">Book Management</button>
+            <button class="nav-tab" onclick="showTab('members')">Member Management</button>
+            <button class="nav-tab" onclick="showTab('issue_return')">Issue/Returns</button>
+        </div>
+
+        <!-- Home Tab-->
+        <div class="content">
+            <div id="home" class="tab-content active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <h3>100</h3>
+                    <p> Books Currently Issued</p>
+                </div>
+                <div class="stats-grid">
+                    <h3>2500</h3>
+                    <p> Available Books</p>
+                </div>
+                <div class="stats-grid">
+                    <h3>500</h3>
+                    <p> Total Members</p>
+                </div>
+                <div class="stats-grid">
+                    <h3>5000</h3>
+                    <p> Total Books</p>
+                </div>
+                <div class="stats-grid">
+                    <h3>300</h3>
+                    <p> Books Overdue</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Tab -->
+         <div id="books" class="tab-content">
+            <h2> Book Management</h2>
+            <div class="management-container">
+                <div class="form-box">
+                    <h2>Add New Book</h2>
+                    <form onsubmit="addBook(event)">
+                        <div class="form-group">
+                            <label for="bookTitle">Book Title:</label>
+                            <input type="text" id="bookTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Author:</label>
+                            <input type="text" id="author" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category"> Category:</label>
+                            <input type="text" id="category" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="isbn">ISBN:</label>
+                            <input type="text" id="isbn" required>
+                        </div>
+                        <button type="submit" class="btn">Add Book</button>
+                    </form>
+                </div>
+                    <div class="search-section">
+                        <h2>Book Database</h2>
+                        <input type="text" class="search-bar" id="searchBookInput" onkeyup="searchBooks()" placeholder="Search by title, author, category, or isbn...">
+                        <table id="bookTable">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>ISBN</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Book entries will be dynamically added here -->
+                                 <tr>
+                                    <td>The Great Gatsby</td>
+                                    <td>F. Scott Fitzgerald</td>
+                                    <td>Fiction</td>
+                                    <td>9780743273565</td>
+                                    <td>Available</td>
+                                    <td>
+                                        <button class="btn btn-edit" onclick="editBook(this)">Edit</button>
+                                        <button class="btn btn-delete" onclick="deleteBook(this)">Delete</button>
+                                    </td>
+                                 </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Members Tab -->
+         <div id="members" class="tab-content">
+            <h2> Member Management</h2>
+            <div class="management-container">
+                <div class="form-box">
+                    <h2>Add New Member</h2>
+                    <form onsubmit="addMember(event)">
+                        <div class="form-group">
+                            <label for="memName">Member Name: </label>
+                            <input type="text" id="memName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mem_email">Email: </label>
+                            <input type="text" id="mem_email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mem_phone"> Phone Number:</label>
+                            <input type="text" id="mem_phone" required>
+                        </div>
+                        <button type="submit" class="btn">Add Member</button>
+                    </form>
+                </div>
+                    <div class="search-section">
+                        <h2>Member Database</h2>
+                        <input type="text" class="search-bar" id="searchMemberInput" onkeyup="searchMembers()" placeholder="Search by name or email...">
+                        <table id="memberTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>Books Issued</th>
+                                    <th>Overdue Items</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Book entries will be dynamically added here -->
+                                 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <!-- Issue/Return Tab -->
+         <div id="issue_return" class="tab-content">
+            <h2> Issue/Return Books</h2>
+            <div class="issue-return-container">
+                <div class="form-box">
+                    <h2>Issue Book</h2>
+                    <form onsubmit="issueBook(event)">
+                        <div class="form-group">
+                            <label for="issue_memID">Member ID:</label>
+                            <input type="text" id="issue_memID" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="issue_bookISBN">Book ISBN:</label>
+                            <input type="text" id="issue_bookISBN" required>
+                        </div>
+                        <button type="submit" class="btn">Issue Book</button>
+                    </form>
+                </div>
+                <div class="form-box">
+                    <h2>Return Book</h2>
+                    <form onsubmit="returnBook(event)">
+                        <div class="form-group">
+                            <label for="return_memID">Member ID:</label>
+                            <input type="text" id="return_memID" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="return_bookISBN">Book ISBN:</label>
+                            <input type="text" id="return_bookISBN" required>
+                        </div>
+                        <button type="submit" class="btn">Return Book</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
