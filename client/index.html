@@ -8,9 +8,14 @@
     <script src="js/script.js"></script>
 </head>
 <body>
-    <div class ="container">
+    <div class="container">
         <div class="header">
             <h1> Library Management System </h1>
+            <div class="header-actions">
+                <button class="header-btn">Profile</button>
+                <button class="header-btn logout">Logout</button>
+            </div>
+
         </div>
 
         <div class="navbar">
@@ -45,7 +50,7 @@
                     <p> Books Overdue</p>
                 </div>
             </div>
-        </div>
+
 
         <!-- Books Tab -->
          <div id="books" class="tab-content">
@@ -143,6 +148,17 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr>
+                                    <td> John Doe </td>
+                                    <td>john.doe@example.com</td>
+                                    <td>123-456-7890</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>
+                                        <button class="btn btn-edit" onclick="editMember(this)">Edit</button>
+                                        <button class="btn btn-delete" onclick="deleteMember(this)">Delete</button>
+                                    </td>
+                                </tr>
                                 <!-- Book entries will be dynamically added here -->
                                  
                             </tbody>
@@ -185,5 +201,6 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
