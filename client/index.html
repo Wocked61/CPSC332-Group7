@@ -202,5 +202,30 @@
         </div>
     </div>
 </div>
+<script>
+async function addBook(event) {
+    event.preventDefault();
+    const payload = {
+        title: document.getElementById('bookTitle').value,
+        author: document.getElementById('author').value,
+        category: document.getElementById('category').value,
+        isbn: document.getElementById('isbn').value
+    };
+
+    const res = await fetch('../server/books_create.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        alert('Book added successfully!');
+        location.reload();
+    } else {
+        alert('Error adding book: ' + data.message);
+    }
+}
+</script>
 </body>
 </html>
