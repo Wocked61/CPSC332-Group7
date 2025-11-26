@@ -29,6 +29,8 @@ function deleteBook(){ alert("deleteBook not wired yet"); }
 
 function addMember(e){ if(e) e.preventDefault(); alert("addMember not wired yet"); }
 function searchMembers(){ alert("searchMembers not wired yet"); }
+function editMember(){ alert("editMember not wired yet"); }
+function deleteMember(){ alert("deleteMember not wired yet"); }
 
 function issueBook(e){ if(e) e.preventDefault(); alert("issueBook not wired yet"); }
 function returnBook(e){ if(e) e.preventDefault(); alert("returnBook not wired yet"); }
