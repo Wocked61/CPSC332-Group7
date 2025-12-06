@@ -1,34 +1,29 @@
 <?php
-require_once '../database/db_connect.php';
 session_start();
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+require_once '../database/db_connect.php';
 
-    $conn = db_connect();
+header('Content-Type: application/json');
 
-    $stmt = $conn->prepare("SELECT id, password_hash FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $stmt->store_result();
-    
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $password_hash);
-        $stmt->fetch();
-        
-        if (password_verify($password, $password_hash)) {
-            $_SESSION['user_id'] = $user_id;
-            $_SESSION['username'] = $username;
-            header("Location: ../dashboard.php");
-            exit();
-        } else {
-            echo "Invalid password.";
-        }
-    } else {
-        echo "No user found with that username.";
-    }
-    
-    $stmt->close();
-    $conn->close();
+$input = json_decode(file_get_contents('php://input'), true);
+$employeeId = $input['employee_id'] ?? '';
+
+if (empty($employeeId)) {
+    echo json_encode(['success' => false, 'message' => 'Employee ID is required']);
+    exit();
 }
+
+$stmt = $conn->prepare("SELECT employee_id FROM employees WHERE employee_id = ?");
+$stmt->bind_param("s", $employeeId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $_SESSION['employee_id'] = $employeeId;
+    echo json_encode(['success' => true]);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid Employee ID']);
+}
+
+$stmt->close();
+$conn->close();
 ?>
