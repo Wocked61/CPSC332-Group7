@@ -64,7 +64,13 @@ step 6: In the CPSC332-Group7 directory create a .env
 Copy and paste the contents of the .env.example
 
 step 7: Access the application
-In your browser type "http://localhost/library_system/CPSC332-Group7/client/login.php" 
+In your browser type "http://localhost/library_system/client/index.php" 
+
+Usage:
+Members login on main page
+Employee login page linked at the bottom of main page
+
+
 Type in our demo employee ID (EMP001)
 
 ## Project Structure:
