@@ -17,7 +17,7 @@ Select library member and issue/return books
 
 ## Pre-Requisites
 Before you begin, install the following: 
-1. XAMPP (includes mySQL,php, and apache)
+1. XAMPP (includes mySQL,php, and apache): https://sourceforge.net/projects/xampp/ 
 2. Web browser (google, google chrome, Safari, etc) 
 3. git (for version control)
    
