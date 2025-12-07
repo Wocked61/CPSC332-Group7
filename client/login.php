@@ -26,6 +26,7 @@ if (isset($_SESSION['employee_id'])) {
                 <button type="submit" class="btn-login">Login</button>
                 <div id="error-message"></div>
             </form>
+            <p style="margin-top:16px;font-size:14px;color:#666;">Members should use the login toggle on the <a href="index.php">public catalog</a>.</p>
         </div>
     </div>
     <script src="js/login.js"></script>

@@ -5,6 +5,7 @@
 function runMigrations(mysqli $conn): void
 {
     ensureIssuesDueDateColumn($conn);
+    ensureReservationsTable($conn);
 }
 
 /**
@@ -27,4 +28,26 @@ function ensureIssuesDueDateColumn(mysqli $conn): void
     $conn->query("ALTER TABLE issues ADD COLUMN due_date DATE DEFAULT NULL");
     $conn->query("UPDATE issues SET due_date = DATE_ADD(issue_date, INTERVAL 14 DAY) WHERE due_date IS NULL");
     $conn->query("ALTER TABLE issues MODIFY due_date DATE NOT NULL");
+}
+
+function ensureReservationsTable(mysqli $conn): void
+{
+    $tablesResult = $conn->query("SHOW TABLES LIKE 'reservations'");
+    if ($tablesResult && $tablesResult->num_rows > 0) {
+        return;
+    }
+
+    $createSql = "CREATE TABLE reservations (
+        reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+        member_id INT NOT NULL,
+        isbn VARCHAR(20) NOT NULL,
+        status ENUM('pending', 'ready', 'fulfilled', 'cancelled') DEFAULT 'pending',
+        notes TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (member_id) REFERENCES members(member_id),
+        FOREIGN KEY (isbn) REFERENCES books(isbn)
+    )";
+
+    $conn->query($createSql);
 }

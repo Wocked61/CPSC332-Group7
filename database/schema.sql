@@ -66,6 +66,28 @@ IF NOT EXISTS issues
 (isbn)
 );
 
+-- Reservations table
+CREATE TABLE
+IF NOT EXISTS reservations
+(
+    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    isbn VARCHAR
+(20) NOT NULL,
+    status ENUM
+('pending', 'ready', 'fulfilled', 'cancelled') DEFAULT 'pending',
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON
+UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY
+(member_id) REFERENCES members
+(member_id),
+    FOREIGN KEY
+(isbn) REFERENCES books
+(isbn)
+);
+
 -- Insert sample employee
 INSERT INTO employees
     (employee_id, first_name, last_name)

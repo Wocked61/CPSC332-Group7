@@ -18,6 +18,8 @@ Database: mysql
 - Borrowing history with filters plus detailed book-level dashboards
 - Inventory dashboard for adding or editing catalog entries
 - Reporting workspace that lists all currently borrowed titles, highlights overdue items, offers an overdue-only toggle, and exports CSV snapshots
+- Staff reservations queue that surfaces pending/ready holds with quick status updates so pickups can be coordinated
+- Member self-service portal for catalog browsing, reservations, and viewing personal borrowing history
 
 ## Pre-Requisites
 Before you begin, install the following: 
@@ -68,8 +70,7 @@ step 6: In the CPSC332-Group7 directory create a .env
 Copy and paste the contents of the .env.example
 
 step 7: Access the application
-In your browser type "http://localhost/library_system/CPSC332-Group7/client/login.php" 
-Type in our demo employee ID (EMP001)
+Visit "http://localhost/library_system/CPSC332-Group7/client/" to browse the live catalog and check availability without logging in. Use the subtle **Member login** dropdown in the upper-right corner to enter your member ID (demo IDs start at 101). A small link in the footer quietly directs staff to the employee dashboard (demo employee ID: EMP001).
 
 ### Upgrading an existing database
 If you're updating an earlier deployment that didn't track due dates, run the following SQL before using the new UI so every issue receives a default 14-day window:
@@ -89,6 +90,7 @@ CPSC332-Group7/
 ├── client/                  # Public-facing PHP, CSS, and JS
 │   ├── login.php            # Employee login form
 │   ├── dashboard.php        # Main application dashboard (tabs for books, issues, history, inventory, members)
+│   ├── member/              # Member-facing login + portal experience
 │   ├── css/
 │   │   ├── login.css
 │   │   └── dashboard.css
@@ -112,6 +114,7 @@ CPSC332-Group7/
 │   ├── return_book.php
 │   ├── search_books.php
 │   └── search_members.php
+│   └── member/              # JSON APIs used by the member portal (catalog, reservations, loans)
 ├── database/
 │   ├── db_connect.php
 │   └── schema.sql

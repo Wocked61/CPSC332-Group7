@@ -1,0 +1,348 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #fdf8f4, #f0ece6);
+    color: #2d221c;
+    display: flex;
+    flex-direction: column;
+}
+
+.masthead {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: 56px 24px 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.login-suite {
+    position: relative;
+    align-self: flex-start;
+}
+
+.login-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(31, 18, 11, 0.15);
+    background: rgba(31, 18, 11, 0.04);
+    font-weight: 600;
+    color: #3a2416;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(31, 18, 11, 0.08);
+}
+
+.login-toggle:hover {
+    background: rgba(31, 18, 11, 0.08);
+}
+
+.login-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(320px, 80vw);
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.login-dropdown form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+}
+
+.login-dropdown input {
+    border: 1.5px solid rgba(74, 58, 46, 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 1rem;
+}
+
+.login-dropdown input:focus {
+    outline: none;
+    border-color: #b08a6a;
+    box-shadow: 0 0 0 3px rgba(176, 138, 106, 0.2);
+}
+
+.inline-error {
+    min-height: 1.2em;
+    font-size: 0.9rem;
+    color: #a33b1f;
+    margin: 0;
+}
+
+.dropdown-lede {
+    margin: 0;
+    color: #5d4b40;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+
+.brand h1 {
+    margin: 8px 0 12px;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.brand .lede {
+    font-size: 1.1rem;
+    max-width: 640px;
+    color: #59493f;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 13px;
+    color: #b08a6a;
+    font-weight: 600;
+}
+
+.login-btn {
+    align-self: center;
+    padding: 12px 24px;
+    border-radius: 999px;
+    border: none;
+    text-decoration: none;
+    background: #a26f41;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 12px 32px rgba(162, 111, 65, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 30px rgba(162, 111, 65, 0.4);
+}
+
+.catalog-shell {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: 0 24px 48px;
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    gap: 32px;
+}
+
+.search-panel,
+.results-panel {
+    background: #fff;
+    border-radius: 28px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(105, 73, 50, 0.15);
+}
+
+.panel-header h2 {
+    margin: 12px 0 8px;
+    font-size: 1.75rem;
+}
+
+.panel-header .helper {
+    margin: 0;
+    color: #6a5a4d;
+    line-height: 1.5;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.95rem;
+    color: #4a3a2e;
+}
+
+.field input,
+.field select {
+    border: 1.5px solid rgba(74, 58, 46, 0.2);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    background: #fff;
+}
+
+.field input:focus,
+.field select:focus {
+    outline: none;
+    border-color: #b08a6a;
+    box-shadow: 0 0 0 3px rgba(176, 138, 106, 0.2);
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #4a3a2e;
+}
+
+.toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: #a26f41;
+}
+
+.primary-cta {
+    border: none;
+    border-radius: 16px;
+    background: #1f120b;
+    color: #fff;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.primary-cta:hover {
+    background: #3a2416;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.results-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.results-header p {
+    margin: 0;
+    color: #6a5a4d;
+}
+
+.catalog-grid {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.catalog-card {
+    border: 1px solid rgba(42, 27, 17, 0.1);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.catalog-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.catalog-card .meta {
+    font-size: 0.9rem;
+    color: #6a5a4d;
+}
+
+.availability {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.availability.available {
+    background: rgba(71, 160, 95, 0.15);
+    color: #1f7a35;
+}
+
+.availability.waitlist {
+    background: rgba(195, 120, 56, 0.18);
+    color: #a35210;
+}
+
+.empty-state {
+    margin-top: 32px;
+    text-align: center;
+    padding: 32px;
+    border-radius: 16px;
+    background: rgba(45, 34, 28, 0.04);
+}
+
+.hidden {
+    display: none !important;
+}
+
+footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 0.9rem;
+    color: #8d7a6b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.staff-link {
+    color: #0645ad;
+    text-decoration: underline;
+}
+
+.staff-link:visited {
+    color: #0b0080;
+}
+
+.staff-link:hover,
+.staff-link:focus {
+    color: #3366cc;
+}
+
+@media (max-width: 900px) {
+    .catalog-shell {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .masthead {
+        padding-top: 40px;
+    }
+
+    .login-suite {
+        width: 100%;
+    }
+
+    .login-dropdown {
+        width: 100%;
+        position: static;
+        margin-top: 12px;
+    }
+
+    .search-panel,
+    .results-panel {
+        padding: 24px;
+    }
+}

@@ -30,11 +30,13 @@ if (!isset($_SESSION['employee_id'])) {
             <button class="tab-btn" data-tab="history">Borrowing History</button>
             <button class="tab-btn" data-tab="inventory">Inventory</button>
             <button class="tab-btn" data-tab="manage-members">Manage Members</button>
+            <button class="tab-btn" data-tab="reservations">Reservations</button>
             <button class="tab-btn" data-tab="reports">Reports</button>
         </div>
 
         <!-- Books Tab -->
         <div id="books-tab" class="tab-content active">
+            <p class="tab-instructions">Search by ISBN, title, author, or category, then click a card to review availability or open its details.</p>
             <div class="search-section">
                 <input type="text" id="bookSearch" placeholder="Search by ISBN, Title, Author, or Category...">
                 <select id="bookFilter">
@@ -50,6 +52,7 @@ if (!isset($_SESSION['employee_id'])) {
 
         <!-- Issues Tab -->
         <div id="issues-tab" class="tab-content">
+            <p class="tab-instructions">Choose a member on the left, then use the Issue/Return tabs to pull books, set due dates, or process returns.</p>
             <div class="two-column">
                 <div class="left-panel">
                     <h3>Select Member</h3>
@@ -105,6 +108,7 @@ if (!isset($_SESSION['employee_id'])) {
         <!-- Manage Members Tab -->
         <div id="manage-members-tab" class="tab-content">
             <h2>Manage Members</h2>
+            <p class="tab-instructions">Search the roster, register new patrons, and use the action buttons to edit or delete selected members.</p>
             <div class="members-toolbar">
                 <input type="text" id="memberSearchFilter" placeholder="Search members by name or ID...">
                 <button class="btn btn-primary" onclick="openRegisterMemberModal()">+ Register Member</button>
@@ -112,8 +116,38 @@ if (!isset($_SESSION['employee_id'])) {
             <div id="membersListResults" class="members-list"></div>
         </div>
 
+        <!-- Reservations Tab -->
+        <div id="reservations-tab" class="tab-content reservations-tab">
+            <p class="tab-instructions">Filter by status, refresh the queue, and use the action buttons to move each reservation toward pickup or completion.</p>
+            <div class="section-header">
+                <div>
+                    <h2>Reservations Queue</h2>
+                    <p class="subtitle">Monitor holds that need prep or pickup.</p>
+                </div>
+                <div class="section-actions">
+                    <label class="inline-filter">
+                        <span>Status</span>
+                        <select id="reservationStatusFilter">
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="ready">Ready</option>
+                            <option value="fulfilled">Fulfilled</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </label>
+                    <button id="refreshReservationsBtn" class="btn btn-secondary">Refresh</button>
+                </div>
+            </div>
+            <div id="reservationSummary" class="reservation-summary-grid" aria-live="polite"></div>
+            <div id="reservationsMessage" class="form-message" style="display:none;"></div>
+            <div id="reservationsList" class="reservations-table-wrapper card">
+                <div class="empty-state">No reservations to review yet.</div>
+            </div>
+        </div>
+
         <!-- Reports Tab -->
         <div id="reports-tab" class="tab-content">
+            <p class="tab-instructions">Refresh to pull the latest activity, toggle overdue-only mode, then export the visible rows to capture a CSV snapshot.</p>
             <div class="reports-header">
                 <div>
                     <h2>Reports</h2>
@@ -141,6 +175,7 @@ if (!isset($_SESSION['employee_id'])) {
         <!-- Borrowing History Tab -->
         <div id="history-tab" class="tab-content">
             <h2>Borrowing History</h2>
+            <p class="tab-instructions">Select a member on the left and use the filters to focus on all activity, currently issued books, or returned records.</p>
             <div class="history-container">
                 <div class="history-left-panel">
                     <h3>Select Member</h3>
@@ -165,11 +200,9 @@ if (!isset($_SESSION['employee_id'])) {
         <!-- Inventory Management Tab -->
         <div id="inventory-tab" class="tab-content">
             <h2>Inventory Management</h2>
+            <p class="tab-instructions">Use the toolbar to add new titles or open edit dialogs, then adjust copy counts directly from the inventory table.</p>
             <div class="inventory-toolbar">
                 <button class="btn btn-primary" id="newBookBtn" onclick="openNewBookModal()">+ New Book</button>
-            </div>
-            <div class="inventory-info">
-                <p>Manage library book inventory. Add new books, remove copies, or edit existing entries.</p>
             </div>
             <div id="inventoryResults" class="inventory-results"></div>
         </div>
@@ -181,6 +214,7 @@ if (!isset($_SESSION['employee_id'])) {
     <script src="js/book_details.js"></script>
     <script src="js/inventory_management.js"></script>
     <script src="js/manage_members.js"></script>
+    <script src="js/reservations.js"></script>
 
     <!-- Book Details Modal -->
     <div id="bookModal" class="modal">
