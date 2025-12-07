@@ -50,6 +50,7 @@ function displayMembersList(members) {
                     <th>Name</th>
                     <th>Join Date</th>
                     <th>Currently Issued</th>
+                    <th>Overdue</th>
                     <th>Total Borrowed</th>
                     <th>Actions</th>
                 </tr>
@@ -59,9 +60,14 @@ function displayMembersList(members) {
                     <tr>
                         <td>${member.member_id}</td>
                         <td>${member.first_name} ${member.last_name}</td>
-                        <td>${new Date(member.join_date).toLocaleDateString()}</td>
-                        <td>${member.currently_issued}</td>
-                        <td>${member.total_borrowed}</td>
+                        <td>${member.join_date ? new Date(member.join_date).toLocaleDateString() : '—'}</td>
+                        <td>${member.currently_issued || 0}</td>
+                        <td>
+                            <span class="overdue-count ${member.overdue_issues > 0 ? 'has-overdue' : ''}">
+                                ${member.overdue_issues || 0}
+                            </span>
+                        </td>
+                        <td>${member.total_borrowed || 0}</td>
                         <td class="actions-cell">
                             <button class="btn-edit" onclick="openEditMemberModal(${member.member_id}, '${member.first_name}', '${member.last_name}')">
                                 Edit

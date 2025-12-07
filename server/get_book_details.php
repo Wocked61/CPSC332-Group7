@@ -55,9 +55,11 @@ $stmt = $conn->prepare("
         m.first_name, 
         m.last_name, 
         i.issue_date,
+        i.due_date,
         DATEDIFF(CURDATE(), i.issue_date) as days_issued,
+        DATEDIFF(i.due_date, CURDATE()) as days_until_due,
         CASE 
-            WHEN DATEDIFF(CURDATE(), i.issue_date) > 30 THEN 'overdue'
+            WHEN i.due_date < CURDATE() THEN 'overdue'
             ELSE 'current'
         END as status
     FROM issues i
@@ -82,9 +84,11 @@ $stmt = $conn->prepare("
         m.first_name,
         m.last_name,
         i.issue_date,
+        i.due_date,
         i.return_date,
         i.status,
-        DATEDIFF(COALESCE(i.return_date, CURDATE()), i.issue_date) as days_borrowed
+        DATEDIFF(COALESCE(i.return_date, CURDATE()), i.issue_date) as days_borrowed,
+        GREATEST(DATEDIFF(COALESCE(i.return_date, CURDATE()), i.due_date), 0) as overdue_days
     FROM issues i
     JOIN members m ON i.member_id = m.member_id
     WHERE i.isbn = ?

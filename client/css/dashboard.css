@@ -331,6 +331,88 @@ select:focus {
     display: block;
 }
 
+.due-date-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+    align-items: flex-end;
+}
+
+.due-date-input label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.due-date-input input[type="date"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 180px;
+}
+
+.due-date-quick {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #555;
+}
+
+.due-date-quick .quick-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.due-quick-btn {
+    padding: 8px 14px;
+    border: 1px solid #a0826d;
+    background: white;
+    color: #a0826d;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.due-quick-btn:hover {
+    background-color: #a0826d;
+    color: white;
+}
+
+.due-summary {
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #555;
+    font-weight: 500;
+}
+
+.due-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.due-badge.on-track {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.due-badge.due-soon {
+    background-color: #fff3cd;
+    color: #8a6d3b;
+}
+
+.due-badge.overdue {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
 .btn-action {
     width: 100%;
     padding: 12px;
@@ -1153,6 +1235,23 @@ select:focus {
 
 .members-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+.overdue-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background-color: #f1f1f1;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.overdue-count.has-overdue {
+    background-color: #ffebee;
+    color: #c62828;
 }
 
 .actions-cell {

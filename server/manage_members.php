@@ -17,8 +17,9 @@ if ($action === 'get_all') {
                 m.member_id,
                 m.first_name,
                 m.last_name,
-                m.created_at,
+                m.created_at AS join_date,
                 COUNT(CASE WHEN i.status = 'issued' THEN 1 END) as currently_issued,
+                COUNT(CASE WHEN i.status = 'issued' AND i.due_date < CURDATE() THEN 1 END) as overdue_issues,
                 COUNT(i.issue_id) as total_borrowed
             FROM members m
             LEFT JOIN issues i ON m.member_id = i.member_id
@@ -118,7 +119,8 @@ if ($action === 'get_all') {
                                 COUNT(*) as total_borrowed,
                                 COUNT(CASE WHEN status = 'issued' THEN 1 END) as currently_issued,
                                 COUNT(CASE WHEN status = 'returned' THEN 1 END) as returned,
-                                COUNT(CASE WHEN status = 'issued' AND DATEDIFF(CURDATE(), issue_date) > 30 THEN 1 END) as overdue
+                                COUNT(CASE WHEN status = 'issued' AND due_date < CURDATE() THEN 1 END) as overdue,
+                                COUNT(CASE WHEN status = 'returned' AND return_date > due_date THEN 1 END) as returned_late
                             FROM issues WHERE member_id = ?");
     $stmt->bind_param("i", $memberId);
     $stmt->execute();

@@ -54,6 +54,7 @@ IF NOT EXISTS issues
     isbn VARCHAR
 (20) NOT NULL,
     issue_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    due_date DATE NOT NULL,
     return_date TIMESTAMP NULL,
     status ENUM
 ('issued', 'returned') DEFAULT 'issued',

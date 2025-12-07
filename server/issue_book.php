@@ -12,9 +12,35 @@ if (!isset($_SESSION['employee_id'])) {
 $input = json_decode(file_get_contents('php://input'), true);
 $memberId = $input['member_id'] ?? 0;
 $isbn = $input['isbn'] ?? '';
+$loanDurationDays = isset($input['loan_duration_days']) ? (int)$input['loan_duration_days'] : null;
+$dueDateInput = $input['due_date'] ?? null;
 
 if (empty($memberId) || empty($isbn)) {
     echo json_encode(['success' => false, 'message' => 'Member ID and ISBN are required']);
+    exit();
+}
+
+$DEFAULT_LOAN_DAYS = 14;
+
+try {
+    $today = new DateTime('today');
+
+    if ($dueDateInput) {
+        $dueDate = DateTime::createFromFormat('Y-m-d', $dueDateInput);
+        if (!$dueDate) {
+            throw new Exception('Invalid due date format. Use YYYY-MM-DD.');
+        }
+    } else {
+        $duration = $loanDurationDays && $loanDurationDays > 0 ? $loanDurationDays : $DEFAULT_LOAN_DAYS;
+        $dueDate = clone $today;
+        $dueDate->modify("+{$duration} days");
+    }
+
+    if ($dueDate <= $today) {
+        throw new Exception('Due date must be after today.');
+    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit();
 }
 
@@ -45,11 +71,16 @@ if ($available <= 0) {
 }
 
 // Issue the book
-$stmt = $conn->prepare("INSERT INTO issues (member_id, isbn, status) VALUES (?, ?, 'issued')");
-$stmt->bind_param("is", $memberId, $isbn);
+$dueDateStr = $dueDate->format('Y-m-d');
+$stmt = $conn->prepare("INSERT INTO issues (member_id, isbn, due_date, status) VALUES (?, ?, ?, 'issued')");
+$stmt->bind_param("iss", $memberId, $isbn, $dueDateStr);
 
 if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
+    echo json_encode([
+        'success' => true,
+        'due_date' => $dueDateStr,
+        'loan_duration_days' => (int)$dueDate->diff($today)->format('%a')
+    ]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to issue book']);
 }

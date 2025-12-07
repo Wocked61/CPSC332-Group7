@@ -1,6 +1,16 @@
 let selectedHistoryMember = null;
 let historyFilter = 'all';
 
+function formatHistoryDate(dateString, fallback = '—') {
+    if (!dateString) return fallback;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString();
+    }
+    const date = new Date(dateString);
+    return Number.isNaN(date.getTime()) ? fallback : date.toLocaleDateString();
+}
+
 // Search members for history
 document.getElementById('historyMemberSearch').addEventListener('input', searchHistoryMembers);
 
@@ -126,9 +136,11 @@ function displayMemberHistory(history) {
                         <th>Author</th>
                         <th>Category</th>
                         <th>Issued Date</th>
+                        <th>Due Date</th>
                         <th>Returned Date</th>
                         <th>Status</th>
-                        <th>Days</th>
+                        <th>Days Borrowed</th>
+                        <th>Overdue Days</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,8 +150,9 @@ function displayMemberHistory(history) {
                             <td>${record.isbn}</td>
                             <td>${record.author}</td>
                             <td>${record.category}</td>
-                            <td>${new Date(record.issue_date).toLocaleDateString()}</td>
-                            <td>${record.return_date ? new Date(record.return_date).toLocaleDateString() : 'Not returned'}</td>
+                            <td>${formatHistoryDate(record.issue_date)}</td>
+                            <td>${formatHistoryDate(record.due_date)}</td>
+                            <td>${record.return_date ? formatHistoryDate(record.return_date) : 'Not returned'}</td>
                             <td>
                                 <span class="status-badge ${record.display_status}">
                                     ${record.display_status === 'overdue' ? '⚠️ Overdue' :
@@ -148,6 +161,7 @@ function displayMemberHistory(history) {
                                 </span>
                             </td>
                             <td>${record.days_issued || 0}</td>
+                            <td>${record.overdue_days || 0}</td>
                         </tr>
                     `).join('')}
                 </tbody>

@@ -71,6 +71,22 @@ if (!isset($_SESSION['employee_id'])) {
                         <div class="search-section">
                             <input type="text" id="issueBookSearch" placeholder="Search books...">
                         </div>
+                        <div class="due-date-controls">
+                            <div class="due-date-input">
+                                <label for="issueDueDate">Due Date</label>
+                                <input type="date" id="issueDueDate">
+                                <div id="dueDateError" class="form-message error" style="display: none;"></div>
+                            </div>
+                            <div class="due-date-quick">
+                                <span>Quick picks:</span>
+                                <div class="quick-buttons">
+                                    <button type="button" class="due-quick-btn" data-days="7">7 days</button>
+                                    <button type="button" class="due-quick-btn" data-days="14">14 days</button>
+                                    <button type="button" class="due-quick-btn" data-days="21">21 days</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="issueDueSummary" class="due-summary"></div>
                         <div id="issueBooksResults" class="results-list"></div>
                         <button id="issueBtn" class="btn-action" disabled>Issue Selected Book</button>
                     </div>

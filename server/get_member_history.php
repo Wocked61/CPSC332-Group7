@@ -18,14 +18,16 @@ if (empty($memberId)) {
 }
 
 // Build the query based on filter
-$sql = "SELECT i.issue_id, i.isbn, i.issue_date, i.return_date, i.status, 
+$sql = "SELECT i.issue_id, i.isbn, i.issue_date, i.due_date, i.return_date, i.status, 
                b.title, b.author, b.category,
                DATEDIFF(CURDATE(), i.issue_date) as days_issued,
+               DATEDIFF(i.due_date, CURDATE()) as days_until_due,
                CASE 
-                   WHEN i.status = 'issued' AND DATEDIFF(CURDATE(), i.issue_date) > 30 THEN 'overdue'
+                   WHEN i.status = 'issued' AND i.due_date < CURDATE() THEN 'overdue'
                    WHEN i.status = 'issued' THEN 'current'
                    ELSE 'returned'
-               END as display_status
+               END as display_status,
+               GREATEST(DATEDIFF(COALESCE(i.return_date, CURDATE()), i.due_date), 0) as overdue_days
         FROM issues i 
         JOIN books b ON i.isbn = b.isbn 
         WHERE i.member_id = ?";

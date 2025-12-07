@@ -1,6 +1,22 @@
 let selectedMember = null;
 let selectedBook = null;
 let selectedIssue = null;
+let selectedDueDate = null;
+const DEFAULT_LOAN_DAYS = 14;
+
+function formatDateInputValue(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function dateFromYMD(value) {
+    if (!value) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day);
+}
 
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -50,6 +66,111 @@ document.querySelectorAll('.action-tab').forEach(btn => {
         }
     });
 });
+
+
+function initializeDueDateControls() {
+    const dateInput = document.getElementById('issueDueDate');
+    const quickButtons = document.querySelectorAll('.due-quick-btn');
+
+    if (!dateInput) {
+        return;
+    }
+
+    dateInput.min = addDaysToToday(1);
+
+    const defaultDate = addDaysToToday(DEFAULT_LOAN_DAYS);
+    setDueDate(defaultDate);
+
+    dateInput.addEventListener('change', () => {
+        const value = dateInput.value;
+        if (!value) {
+            selectedDueDate = null;
+            showDueDateError('Please select a due date');
+        } else if (!isFutureDate(value)) {
+            selectedDueDate = null;
+            showDueDateError('Due date must be after today');
+        } else {
+            selectedDueDate = value;
+            hideDueDateError();
+        }
+        updateDueDateSummary();
+        refreshIssueButtonState();
+    });
+
+    quickButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const days = parseInt(btn.dataset.days, 10);
+            if (!isNaN(days)) {
+                setDueDate(addDaysToToday(days));
+            }
+        });
+    });
+}
+
+function addDaysToToday(days) {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    return formatDateInputValue(date);
+}
+
+function setDueDate(dateString) {
+    const dateInput = document.getElementById('issueDueDate');
+    if (!dateInput) return;
+    dateInput.value = dateString;
+    selectedDueDate = dateString;
+    hideDueDateError();
+    updateDueDateSummary();
+    refreshIssueButtonState();
+}
+
+function isFutureDate(dateString) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(dateString);
+    target.setHours(0, 0, 0, 0);
+    return target > today;
+}
+
+function updateDueDateSummary() {
+    const summaryEl = document.getElementById('issueDueSummary');
+    if (!summaryEl) return;
+
+    if (!selectedDueDate) {
+        summaryEl.textContent = 'Select a due date before issuing.';
+        return;
+    }
+
+    const due = dateFromYMD(selectedDueDate);
+    if (!due) {
+        summaryEl.textContent = 'Select a valid due date before issuing.';
+        return;
+    }
+    const today = new Date();
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    summaryEl.textContent = `Due on ${due.toLocaleDateString()} (${diffDays} day${diffDays !== 1 ? 's' : ''} from today)`;
+}
+
+function showDueDateError(message) {
+    const errorEl = document.getElementById('dueDateError');
+    if (!errorEl) return;
+    errorEl.textContent = message;
+    errorEl.style.display = 'block';
+}
+
+function hideDueDateError() {
+    const errorEl = document.getElementById('dueDateError');
+    if (!errorEl) return;
+    errorEl.style.display = 'none';
+    errorEl.textContent = '';
+}
+
+function refreshIssueButtonState() {
+    const issueBtn = document.getElementById('issueBtn');
+    if (!issueBtn) return;
+    const ready = selectedMember && selectedBook && !!selectedDueDate;
+    issueBtn.disabled = !ready;
+}
 
 
 
@@ -132,6 +253,17 @@ function selectMember(id, firstName, lastName) {
     } else {
         selectedMember = { member_id: id, first_name: firstName, last_name: lastName };
     }
+    selectedIssue = null;
+    const returnBtn = document.getElementById('returnBtn');
+    if (returnBtn) {
+        returnBtn.disabled = true;
+    }
+    if (!selectedMember) {
+        const issuedContainer = document.getElementById('issuedBooksResults');
+        if (issuedContainer) {
+            issuedContainer.innerHTML = '<div class="empty-state">Select a member to view issued books</div>';
+        }
+    }
     updateSelectedMemberInfo();
     searchMembers();
 
@@ -139,15 +271,11 @@ function selectMember(id, firstName, lastName) {
     if (activeAction === 'return' && selectedMember) {
         loadIssuedBooks();
     }
-
-    // Update issue button state when member is selected
-    const issueBtn = document.getElementById('issueBtn');
-    issueBtn.disabled = !(selectedMember && selectedBook);
+    refreshIssueButtonState();
 }
 
 function updateSelectedMemberInfo() {
     const container = document.getElementById('selectedMemberInfo');
-    const issueBtn = document.getElementById('issueBtn');
     const returnBtn = document.getElementById('returnBtn');
 
     if (selectedMember) {
@@ -160,9 +288,10 @@ function updateSelectedMemberInfo() {
     } else {
         container.innerHTML = '';
         container.style.display = 'none';
-        issueBtn.disabled = true;
         returnBtn.disabled = true;
     }
+
+    refreshIssueButtonState();
 }
 
 // Search books for issuing
@@ -193,13 +322,9 @@ function displayIssueBooks(books) {
         return;
     }
 
-    console.log('Books data:', books); // Debug log
-
     container.innerHTML = books.map(book => {
         const availableCopies = book.available_copies !== undefined ? book.available_copies : 0;
         const isInStock = availableCopies > 0;
-
-        console.log(`Book: ${book.title}, Available: ${availableCopies}, In Stock: ${isInStock}`); // Debug log
 
         return `
             <div class="book-item ${selectedBook?.isbn === book.isbn ? 'selected' : ''}" 
@@ -222,14 +347,15 @@ function selectBook(isbn, title) {
         selectedBook = { isbn, title };
     }
     searchIssueBooks();
-
-    const issueBtn = document.getElementById('issueBtn');
-    issueBtn.disabled = !(selectedMember && selectedBook);
+    refreshIssueButtonState();
 }
 
 // Issue book
 document.getElementById('issueBtn').addEventListener('click', async () => {
-    if (!selectedMember || !selectedBook) return;
+    if (!selectedMember || !selectedBook || !selectedDueDate) {
+        showDueDateError('Select a member, book, and due date before issuing.');
+        return;
+    }
 
     try {
         const response = await fetch('../server/issue_book.php', {
@@ -237,18 +363,23 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 member_id: selectedMember.member_id,
-                isbn: selectedBook.isbn
+                isbn: selectedBook.isbn,
+                due_date: selectedDueDate
             })
         });
 
         const result = await response.json();
 
         if (result.success) {
-            alert('Book issued successfully!');
+            const dueDateDisplay = dateFromYMD(selectedDueDate)?.toLocaleDateString() ?? selectedDueDate;
+            alert(`Book issued successfully! Due ${dueDateDisplay}.`);
             selectedBook = null;
+            refreshIssueButtonState();
             searchIssueBooks();
             searchBooks();
-            document.getElementById('issueBtn').disabled = true;
+            if (selectedMember) {
+                loadIssuedBooks();
+            }
         } else {
             alert(result.message || 'Failed to issue book');
         }
@@ -279,14 +410,37 @@ function displayIssuedBooks(issues) {
         return;
     }
 
-    container.innerHTML = issues.map(issue => `
-        <div class="issue-item ${selectedIssue?.issue_id === issue.issue_id ? 'selected' : ''}" 
-             onclick="selectIssue(${issue.issue_id}, '${issue.isbn}', '${issue.title.replace(/'/g, "\\'")}')">
-            <h4>${issue.title}</h4>
-            <p>ISBN: ${issue.isbn}</p>
-            <p>Issued: ${new Date(issue.issue_date).toLocaleDateString()}</p>
-        </div>
-    `).join('');
+    container.innerHTML = issues.map(issue => {
+        const dueDate = dateFromYMD(issue.due_date);
+        const daysRemaining = issue.days_remaining ?? null;
+        const overdue = issue.is_overdue;
+        let statusText = '';
+        let badgeClass = 'on-track';
+
+        if (overdue) {
+            const overdueDays = daysRemaining !== null ? Math.abs(daysRemaining) : '';
+            statusText = `Overdue${overdueDays ? ` by ${overdueDays} day${overdueDays !== 1 ? 's' : ''}` : ''}`;
+            badgeClass = 'overdue';
+        } else if (daysRemaining !== null) {
+            if (daysRemaining <= 2) {
+                badgeClass = 'due-soon';
+            }
+            statusText = daysRemaining === 0
+                ? 'Due today'
+                : `Due in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`;
+        }
+
+        return `
+            <div class="issue-item ${selectedIssue?.issue_id === issue.issue_id ? 'selected' : ''}" 
+                 onclick="selectIssue(${issue.issue_id}, '${issue.isbn}', '${issue.title.replace(/'/g, "\\'")}')">
+                <h4>${issue.title}</h4>
+                <p>ISBN: ${issue.isbn}</p>
+                <p>Issued: ${new Date(issue.issue_date).toLocaleDateString()}</p>
+                ${dueDate ? `<p>Due: ${dueDate.toLocaleDateString()}</p>` : ''}
+                ${statusText ? `<span class="due-badge ${badgeClass}">${statusText}</span>` : ''}
+            </div>
+        `;
+    }).join('');
 }
 
 function selectIssue(issueId, isbn, title) {
@@ -341,6 +495,7 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 
 // Initial load
 searchBooks();
+initializeDueDateControls();
 
 // Book Details Modal Handler - Initialize after DOM is ready
 function initializeBookModal() {
@@ -421,21 +576,33 @@ function displayBookDetails(data) {
     if (currentBorrows.length === 0) {
         currentBorrowsContainer.innerHTML = '<div class="empty-state">No one currently has this book</div>';
     } else {
-        currentBorrowsContainer.innerHTML = currentBorrows.map(borrow => `
-            <div class="borrow-card ${borrow.status}">
-                <div class="borrow-header">
-                    <strong>${borrow.first_name} ${borrow.last_name}</strong>
-                    <span class="borrow-status ${borrow.status}">
-                        ${borrow.status === 'overdue' ? '⚠️ Overdue' : '📖 Current'}
-                    </span>
+        currentBorrowsContainer.innerHTML = currentBorrows.map(borrow => {
+            const dueDate = borrow.due_date ? dateFromYMD(borrow.due_date)?.toLocaleDateString() ?? '—' : '—';
+            const daysUntilDue = borrow.days_until_due ?? 0;
+            const dueText = borrow.status === 'overdue'
+                ? `Overdue by ${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) !== 1 ? 's' : ''}`
+                : daysUntilDue === 0
+                    ? 'Due today'
+                    : `Due in ${daysUntilDue} day${daysUntilDue !== 1 ? 's' : ''}`;
+
+            return `
+                <div class="borrow-card ${borrow.status}">
+                    <div class="borrow-header">
+                        <strong>${borrow.first_name} ${borrow.last_name}</strong>
+                        <span class="borrow-status ${borrow.status}">
+                            ${borrow.status === 'overdue' ? '⚠️ Overdue' : '📖 Current'}
+                        </span>
+                    </div>
+                    <div class="borrow-details">
+                        <p>Member ID: ${borrow.member_id}</p>
+                        <p>Issued: ${new Date(borrow.issue_date).toLocaleDateString()}</p>
+                        <p>Due: ${dueDate}</p>
+                        <p>${dueText}</p>
+                        <p>Days Issued: ${borrow.days_issued}</p>
+                    </div>
                 </div>
-                <div class="borrow-details">
-                    <p>Member ID: ${borrow.member_id}</p>
-                    <p>Issued: ${new Date(borrow.issue_date).toLocaleDateString()}</p>
-                    <p>Days Issued: ${borrow.days_issued}</p>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Update history table
@@ -449,8 +616,10 @@ function displayBookDetails(data) {
                     <tr>
                         <th>Member</th>
                         <th>Issue Date</th>
+                        <th>Due Date</th>
                         <th>Return Date</th>
                         <th>Days</th>
+                        <th>Overdue Days</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -459,8 +628,10 @@ function displayBookDetails(data) {
                         <tr>
                             <td>${record.first_name} ${record.last_name}</td>
                             <td>${new Date(record.issue_date).toLocaleDateString()}</td>
+                            <td>${record.due_date ? dateFromYMD(record.due_date)?.toLocaleDateString() ?? '-' : '-'}</td>
                             <td>${record.return_date ? new Date(record.return_date).toLocaleDateString() : '-'}</td>
                             <td>${record.days_borrowed}</td>
+                            <td>${record.overdue_days}</td>
                             <td>
                                 <span class="badge ${record.status}">
                                     ${record.status === 'issued' ? 'Issued' : 'Returned'}
