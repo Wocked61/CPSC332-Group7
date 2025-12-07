@@ -49,7 +49,9 @@ cd CPSC332-Group7
 ```
 
 step 4: open xampp control panel
+
 Start Apache
+
 Start mySQL
 
 step 5: create database
@@ -100,11 +102,7 @@ petadoptionplatform/
 
 ## authors
 Team 7:
-Annik Pol
-Eliot Park
-Dylan Phan
-Nicholas Reardon
-Ryan Lee
+Annik Pol, Eliot Park, Dylan Phan, Nicholas Reardon, Ryan Lee
 
 
 
