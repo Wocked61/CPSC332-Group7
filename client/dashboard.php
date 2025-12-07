@@ -27,6 +27,7 @@ if (!isset($_SESSION['employee_id'])) {
         <div class="tabs">
             <button class="tab-btn active" data-tab="books">Browse Books</button>
             <button class="tab-btn" data-tab="members">Manage Issues</button>
+            <button class="tab-btn" data-tab="register">Register Member</button>
         </div>
 
         <!-- Books Tab -->
@@ -81,8 +82,27 @@ if (!isset($_SESSION['employee_id'])) {
                 </div>
             </div>
         </div>
+
+        <!-- Register Member Tab -->
+        <div id="register-tab" class="tab-content">
+            <h2>Register New Member</h2>
+            <form id="registerForm" class="registration-form">
+                <div class="form-group">
+                    <label for="regFirstName">First Name</label>
+                    <input type="text" id="regFirstName" name="first_name" placeholder="Enter first name" required>
+                </div>
+                <div class="form-group">
+                    <label for="regLastName">Last Name</label>
+                    <input type="text" id="regLastName" name="last_name" placeholder="Enter last name" required>
+                </div>
+                <button type="submit" class="btn-register">Register Member</button>
+                <div id="register-message"></div>
+            </form>
+            <div id="registerSuccess" class="register-success"></div>
+        </div>
     </div>
 
     <script src="js/dashboard.js"></script>
+    <script src="js/register_member.js"></script>
 </body>
 </html>

@@ -174,11 +174,13 @@ select:focus {
     gap: 30px;
 }
 
-.left-panel, .right-panel {
+.left-panel,
+.right-panel {
     min-height: 400px;
 }
 
-.left-panel h3, .right-panel h3 {
+.left-panel h3,
+.right-panel h3 {
     color: #a0826d;
     margin-bottom: 15px;
     font-size: 18px;
@@ -190,7 +192,9 @@ select:focus {
     margin-bottom: 20px;
 }
 
-.member-card, .book-item, .issue-item {
+.member-card,
+.book-item,
+.issue-item {
     padding: 15px;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
@@ -199,22 +203,30 @@ select:focus {
     transition: all 0.3s;
 }
 
-.member-card:hover, .book-item:hover, .issue-item:hover {
+.member-card:hover,
+.book-item:hover,
+.issue-item:hover {
     border-color: #a0826d;
     background-color: #fafafa;
 }
 
-.member-card.selected, .book-item.selected, .issue-item.selected {
+.member-card.selected,
+.book-item.selected,
+.issue-item.selected {
     border-color: #a0826d;
     background-color: #f5f1ed;
 }
 
-.member-card h4, .book-item h4, .issue-item h4 {
+.member-card h4,
+.book-item h4,
+.issue-item h4 {
     color: #333;
     margin-bottom: 5px;
 }
 
-.member-card p, .book-item p, .issue-item p {
+.member-card p,
+.book-item p,
+.issue-item p {
     font-size: 13px;
     color: #666;
     margin: 3px 0;
@@ -288,4 +300,96 @@ select:focus {
     text-align: center;
     padding: 40px;
     color: #999;
+}
+
+.registration-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #a0826d;
+    box-shadow: 0 0 4px rgba(160, 130, 109, 0.3);
+}
+
+.btn-register {
+    width: 100%;
+    padding: 12px;
+    background-color: #a0826d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.btn-register:hover {
+    background-color: #8a6f5c;
+}
+
+#register-message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 4px;
+    text-align: center;
+    display: none;
+    font-size: 14px;
+}
+
+#register-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    display: block;
+}
+
+#register-message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    display: block;
+}
+
+.register-success {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #e8f5e9;
+    border-left: 4px solid #2e7d32;
+    border-radius: 4px;
+    color: #2e7d32;
+    display: none;
+}
+
+.register-success h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.register-success p {
+    margin: 5px 0;
+    font-size: 14px;
 }

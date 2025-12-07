@@ -10,15 +10,18 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(`${tab}-tab`).classList.add('active');
-        
+
         if (tab === 'books') {
             searchBooks();
-        } else {
+        } else if (tab === 'members') {
             searchMembers();
             selectedMember = null;
             selectedBook = null;
             selectedIssue = null;
             updateSelectedMemberInfo();
+        } else if (tab === 'register') {
+            // Focus on first name input when switching to register tab
+            setTimeout(() => document.getElementById('regFirstName').focus(), 100);
         }
     });
 });
@@ -31,7 +34,7 @@ document.querySelectorAll('.action-tab').forEach(btn => {
         document.querySelectorAll('.action-section').forEach(s => s.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(`${action}-section`).classList.add('active');
-        
+
         if (action === 'return' && selectedMember) {
             loadIssuedBooks();
         }
@@ -45,7 +48,7 @@ document.getElementById('bookFilter').addEventListener('change', searchBooks);
 async function searchBooks() {
     const query = document.getElementById('bookSearch').value;
     const filter = document.getElementById('bookFilter').value;
-    
+
     try {
         const response = await fetch(`../server/search_books.php?query=${encodeURIComponent(query)}&filter=${filter}`);
         const books = await response.json();
@@ -57,12 +60,12 @@ async function searchBooks() {
 
 function displayBooks(books) {
     const container = document.getElementById('booksResults');
-    
+
     if (books.length === 0) {
         container.innerHTML = '<div class="empty-state">No books found</div>';
         return;
     }
-    
+
     container.innerHTML = books.map(book => `
         <div class="book-card">
             <h4>${book.title}</h4>
@@ -81,7 +84,7 @@ document.getElementById('memberSearch').addEventListener('input', searchMembers)
 
 async function searchMembers() {
     const query = document.getElementById('memberSearch').value;
-    
+
     try {
         const response = await fetch(`../server/search_members.php?query=${encodeURIComponent(query)}`);
         const members = await response.json();
@@ -93,12 +96,12 @@ async function searchMembers() {
 
 function displayMembers(members) {
     const container = document.getElementById('membersResults');
-    
+
     if (members.length === 0) {
         container.innerHTML = '<div class="empty-state">No members found</div>';
         return;
     }
-    
+
     container.innerHTML = members.map(member => `
         <div class="member-card ${selectedMember?.member_id === member.member_id ? 'selected' : ''}" 
              onclick="selectMember(${member.member_id}, '${member.first_name}', '${member.last_name}')">
@@ -116,7 +119,7 @@ function selectMember(id, firstName, lastName) {
     }
     updateSelectedMemberInfo();
     searchMembers();
-    
+
     const activeAction = document.querySelector('.action-tab.active').dataset.action;
     if (activeAction === 'return' && selectedMember) {
         loadIssuedBooks();
@@ -127,7 +130,7 @@ function updateSelectedMemberInfo() {
     const container = document.getElementById('selectedMemberInfo');
     const issueBtn = document.getElementById('issueBtn');
     const returnBtn = document.getElementById('returnBtn');
-    
+
     if (selectedMember) {
         container.innerHTML = `
             <h4>Selected Member</h4>
@@ -148,7 +151,7 @@ document.getElementById('issueBookSearch').addEventListener('input', searchIssue
 
 async function searchIssueBooks() {
     const query = document.getElementById('issueBookSearch').value;
-    
+
     try {
         const response = await fetch(`../server/search_books.php?query=${encodeURIComponent(query)}&available=true`);
         const books = await response.json();
@@ -160,12 +163,12 @@ async function searchIssueBooks() {
 
 function displayIssueBooks(books) {
     const container = document.getElementById('issueBooksResults');
-    
+
     if (books.length === 0) {
         container.innerHTML = '<div class="empty-state">No available books found</div>';
         return;
     }
-    
+
     container.innerHTML = books.map(book => `
         <div class="book-item ${selectedBook?.isbn === book.isbn ? 'selected' : ''}" 
              onclick="selectBook('${book.isbn}', '${book.title.replace(/'/g, "\\'")}')">
@@ -183,7 +186,7 @@ function selectBook(isbn, title) {
         selectedBook = { isbn, title };
     }
     searchIssueBooks();
-    
+
     const issueBtn = document.getElementById('issueBtn');
     issueBtn.disabled = !(selectedMember && selectedBook);
 }
@@ -191,7 +194,7 @@ function selectBook(isbn, title) {
 // Issue book
 document.getElementById('issueBtn').addEventListener('click', async () => {
     if (!selectedMember || !selectedBook) return;
-    
+
     try {
         const response = await fetch('../server/issue_book.php', {
             method: 'POST',
@@ -201,9 +204,9 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
                 isbn: selectedBook.isbn
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert('Book issued successfully!');
             selectedBook = null;
@@ -222,7 +225,7 @@ document.getElementById('issueBtn').addEventListener('click', async () => {
 // Load issued books for return
 async function loadIssuedBooks() {
     if (!selectedMember) return;
-    
+
     try {
         const response = await fetch(`../server/get_issued_books.php?member_id=${selectedMember.member_id}`);
         const issues = await response.json();
@@ -234,12 +237,12 @@ async function loadIssuedBooks() {
 
 function displayIssuedBooks(issues) {
     const container = document.getElementById('issuedBooksResults');
-    
+
     if (issues.length === 0) {
         container.innerHTML = '<div class="empty-state">No issued books for this member</div>';
         return;
     }
-    
+
     container.innerHTML = issues.map(issue => `
         <div class="issue-item ${selectedIssue?.issue_id === issue.issue_id ? 'selected' : ''}" 
              onclick="selectIssue(${issue.issue_id}, '${issue.isbn}', '${issue.title.replace(/'/g, "\\'")}')">
@@ -257,7 +260,7 @@ function selectIssue(issueId, isbn, title) {
         selectedIssue = { issue_id: issueId, isbn, title };
     }
     loadIssuedBooks();
-    
+
     const returnBtn = document.getElementById('returnBtn');
     returnBtn.disabled = !selectedIssue;
 }
@@ -265,16 +268,16 @@ function selectIssue(issueId, isbn, title) {
 // Return book
 document.getElementById('returnBtn').addEventListener('click', async () => {
     if (!selectedIssue) return;
-    
+
     try {
         const response = await fetch('../server/return_book.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ issue_id: selectedIssue.issue_id })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert('Book returned successfully!');
             selectedIssue = null;
