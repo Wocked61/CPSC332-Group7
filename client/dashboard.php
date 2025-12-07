@@ -27,6 +27,7 @@ if (!isset($_SESSION['employee_id'])) {
         <div class="tabs">
             <button class="tab-btn active" data-tab="books">Browse Books</button>
             <button class="tab-btn" data-tab="members">Manage Issues</button>
+            <button class="tab-btn" data-tab="history">Borrowing History</button>
             <button class="tab-btn" data-tab="register">Register Member</button>
         </div>
 
@@ -100,9 +101,34 @@ if (!isset($_SESSION['employee_id'])) {
             </form>
             <div id="registerSuccess" class="register-success"></div>
         </div>
+
+        <!-- Borrowing History Tab -->
+        <div id="history-tab" class="tab-content">
+            <h2>Borrowing History</h2>
+            <div class="history-container">
+                <div class="history-left-panel">
+                    <h3>Select Member</h3>
+                    <div class="search-section">
+                        <input type="text" id="historyMemberSearch" placeholder="Search by Name or Member ID...">
+                    </div>
+                    <div id="historyMembersResults" class="results-list"></div>
+                    <div id="selectedHistoryMemberInfo" class="selected-info"></div>
+                </div>
+
+                <div class="history-right-panel">
+                    <div class="history-filter-section">
+                        <button class="history-filter active" data-filter="all">All Records</button>
+                        <button class="history-filter" data-filter="issued">Currently Issued</button>
+                        <button class="history-filter" data-filter="returned">Returned</button>
+                    </div>
+                    <div id="historyResults" class="history-results"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/dashboard.js"></script>
     <script src="js/register_member.js"></script>
+    <script src="js/borrowing_history.js"></script>
 </body>
 </html>

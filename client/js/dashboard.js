@@ -19,6 +19,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
             selectedBook = null;
             selectedIssue = null;
             updateSelectedMemberInfo();
+        } else if (tab === 'history') {
+            // Focus on first member search input when switching to history tab
+            setTimeout(() => document.getElementById('historyMemberSearch').focus(), 100);
         } else if (tab === 'register') {
             // Focus on first name input when switching to register tab
             setTimeout(() => document.getElementById('regFirstName').focus(), 100);

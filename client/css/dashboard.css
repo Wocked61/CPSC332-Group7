@@ -393,3 +393,137 @@ select:focus {
     margin: 5px 0;
     font-size: 14px;
 }
+
+/* Borrowing History Styles */
+.history-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.history-left-panel {
+    min-height: 400px;
+}
+
+.history-right-panel {
+    min-height: 400px;
+}
+
+.history-left-panel h3,
+.history-right-panel h3 {
+    color: #a0826d;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.history-filter-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.history-filter {
+    padding: 10px 16px;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.history-filter:hover {
+    border-color: #a0826d;
+    background-color: #fafafa;
+}
+
+.history-filter.active {
+    background-color: #a0826d;
+    color: white;
+    border-color: #a0826d;
+}
+
+.history-results {
+    margin-top: 20px;
+}
+
+.history-table-wrapper {
+    overflow-x: auto;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 13px;
+}
+
+.history-table thead {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.history-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+}
+
+.history-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #666;
+}
+
+.history-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.history-row.overdue {
+    background-color: #fff3cd;
+}
+
+.history-row.overdue:hover {
+    background-color: #ffe8a1;
+}
+
+.history-row.current {
+    background-color: #e8f5e9;
+}
+
+.history-row.current:hover {
+    background-color: #d4edda;
+}
+
+.history-row.returned {
+    background-color: white;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.status-badge.overdue {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.current {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.returned {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
