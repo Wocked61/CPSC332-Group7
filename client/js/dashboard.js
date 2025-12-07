@@ -3,6 +3,18 @@ let selectedBook = null;
 let selectedIssue = null;
 let selectedDueDate = null;
 const DEFAULT_LOAN_DAYS = 14;
+const reportsSelectors = {
+    table: document.getElementById('reportsTable'),
+    borrowedBadge: document.getElementById('borrowedCountBadge'),
+    overdueBadge: document.getElementById('overdueCountBadge'),
+    message: document.getElementById('reportsMessage'),
+    refreshBtn: document.getElementById('refreshReportsBtn'),
+    exportBtn: document.getElementById('exportReportsBtn'),
+    overdueToggleBtn: document.getElementById('overdueToggleBtn')
+};
+let hasLoadedReports = false;
+let reportsData = { borrowed: [], overdue: [] };
+let showOverdueOnly = false;
 
 function formatDateInputValue(date) {
     const year = date.getFullYear();
@@ -46,6 +58,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         } else if (tab === 'manage-members') {
             // Load member list when switching to manage members tab
             loadMembersList();
+        } else if (tab === 'reports') {
+            loadReports({ silent: hasLoadedReports });
         }
     });
 });
@@ -483,6 +497,249 @@ document.getElementById('returnBtn').addEventListener('click', async () => {
     }
 });
 
+function setReportsMessage(type, text) {
+    const messageEl = reportsSelectors.message;
+    if (!messageEl) return;
+
+    if (!text) {
+        messageEl.style.display = 'none';
+        messageEl.textContent = '';
+        messageEl.classList.remove('error', 'success');
+        return;
+    }
+
+    messageEl.style.display = 'block';
+    messageEl.textContent = text;
+    messageEl.classList.remove('error', 'success');
+    if (type === 'error' || type === 'success') {
+        messageEl.classList.add(type);
+    }
+}
+
+function setOverdueToggleState() {
+    const toggleBtn = reportsSelectors.overdueToggleBtn;
+    if (!toggleBtn) return;
+    toggleBtn.classList.toggle('active', showOverdueOnly);
+    toggleBtn.textContent = showOverdueOnly ? 'Showing: Overdue Only' : 'Overdue Only';
+    toggleBtn.setAttribute('aria-pressed', String(showOverdueOnly));
+}
+
+function getActiveReportRows() {
+    return showOverdueOnly ? reportsData.overdue : reportsData.borrowed;
+}
+
+function renderCurrentReports() {
+    if (!reportsSelectors.table) return;
+    const rows = getActiveReportRows();
+    const emptyText = showOverdueOnly ? 'No overdue books 🎉' : 'No borrowed books at the moment.';
+    renderReportsTable(reportsSelectors.table, rows, emptyText);
+
+    if (reportsSelectors.exportBtn) {
+        reportsSelectors.exportBtn.disabled = rows.length === 0;
+    }
+}
+
+function formatReportDate(value) {
+    if (!value) return '—';
+    let date = null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        date = dateFromYMD(value);
+    } else {
+        date = new Date(value);
+    }
+    if (!date || isNaN(date.getTime())) return value;
+    return date.toLocaleDateString();
+}
+
+function getReportStatus(record) {
+    const daysRemaining = Number(record.days_remaining);
+
+    if (record.is_overdue) {
+        const overdueDays = Number.isFinite(daysRemaining) ? Math.abs(daysRemaining) : null;
+        return {
+            badgeClass: 'overdue',
+            label: overdueDays && overdueDays > 0
+                ? `Overdue by ${overdueDays} day${overdueDays !== 1 ? 's' : ''}`
+                : 'Overdue'
+        };
+    }
+
+    if (Number.isFinite(daysRemaining)) {
+        if (daysRemaining === 0) {
+            return { badgeClass: 'due-soon', label: 'Due today' };
+        }
+        if (daysRemaining <= 2) {
+            return {
+                badgeClass: 'due-soon',
+                label: `Due in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`
+            };
+        }
+        return {
+            badgeClass: 'on-track',
+            label: `Due in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`
+        };
+    }
+
+    return { badgeClass: 'on-track', label: 'Issued' };
+}
+
+function renderReportsTable(container, rows, emptyText) {
+    if (!container) return;
+
+    if (!rows || rows.length === 0) {
+        container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+        return;
+    }
+
+    const tableRows = rows.map(record => {
+        const status = getReportStatus(record);
+        const overdueLabel = record.is_overdue ? 'Yes' : 'No';
+        return `
+            <tr class="${record.is_overdue ? 'overdue-row' : ''}">
+                <td>
+                    ${record.first_name} ${record.last_name}
+                    <span class="report-subtext">Member ID: ${record.member_id}</span>
+                </td>
+                <td>
+                    ${record.title}
+                    <span class="report-subtext">by ${record.author || 'Unknown author'}</span>
+                </td>
+                <td>${record.isbn}</td>
+                <td>${formatReportDate(record.issue_date)}</td>
+                <td>${formatReportDate(record.due_date)}</td>
+                <td>${overdueLabel}</td>
+                <td><span class="status-badge ${status.badgeClass}">${status.label}</span></td>
+            </tr>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <table class="reports-table">
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Book</th>
+                    <th>ISBN</th>
+                    <th>Issued</th>
+                    <th>Due</th>
+                    <th>Overdue</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    `;
+}
+
+function escapeCsvValue(value) {
+    if (value === null || value === undefined) return '';
+    const str = String(value).replace(/"/g, '""');
+    return /[",\n]/.test(str) ? `"${str}"` : str;
+}
+
+function buildReportsCsv(rows) {
+    const headers = ['Member Name', 'Member ID', 'Book Title', 'ISBN', 'Issue Date', 'Due Date', 'Overdue', 'Status'];
+    const lines = [headers.join(',')];
+
+    rows.forEach(record => {
+        const status = getReportStatus(record);
+        const overdueLabel = record.is_overdue ? 'Yes' : 'No';
+        const values = [
+            `${record.first_name} ${record.last_name}`.trim(),
+            record.member_id,
+            record.title,
+            record.isbn,
+            formatReportDate(record.issue_date),
+            formatReportDate(record.due_date),
+            overdueLabel,
+            status.label
+        ].map(escapeCsvValue);
+
+        lines.push(values.join(','));
+    });
+
+    return lines.join('\n');
+}
+
+function downloadCsv(filename, content) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+function exportCurrentReport() {
+    const rows = getActiveReportRows();
+    if (!rows.length) {
+        setReportsMessage('error', showOverdueOnly ? 'No overdue rows to export.' : 'No borrowed rows to export.');
+        return;
+    }
+
+    const filenameBase = showOverdueOnly ? 'overdue_books' : 'borrowed_books';
+    const timestamp = new Date().toISOString().split('T')[0];
+    const csv = buildReportsCsv(rows);
+    downloadCsv(`${filenameBase}_${timestamp}`, csv);
+    setReportsMessage('success', `Exported ${rows.length} row${rows.length !== 1 ? 's' : ''} to CSV`);
+}
+
+async function loadReports(options = {}) {
+    const { silent = false } = options;
+    if (!reportsSelectors.table) return;
+
+    if (!silent) {
+        setReportsMessage(null, 'Loading the latest data...');
+    }
+
+    if (reportsSelectors.refreshBtn) {
+        reportsSelectors.refreshBtn.disabled = true;
+    }
+    if (reportsSelectors.exportBtn) {
+        reportsSelectors.exportBtn.disabled = true;
+    }
+
+    try {
+        const response = await fetch('../server/get_reports.php');
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Unable to load reports');
+        }
+
+        const borrowed = Array.isArray(data.borrowed_books) ? data.borrowed_books : [];
+        const overdue = Array.isArray(data.overdue_books) ? data.overdue_books : [];
+
+        reportsData = { borrowed, overdue };
+
+        if (reportsSelectors.borrowedBadge) {
+            reportsSelectors.borrowedBadge.textContent = borrowed.length;
+        }
+        if (reportsSelectors.overdueBadge) {
+            reportsSelectors.overdueBadge.textContent = overdue.length;
+        }
+
+        setOverdueToggleState();
+        renderCurrentReports();
+
+        const updatedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setReportsMessage('success', `Reports updated ${updatedAt}`);
+        hasLoadedReports = true;
+    } catch (error) {
+        console.error('Error loading reports:', error);
+        setReportsMessage('error', error.message || 'Failed to load reports');
+    } finally {
+        if (reportsSelectors.refreshBtn) {
+            reportsSelectors.refreshBtn.disabled = false;
+        }
+    }
+}
+
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     try {
@@ -496,6 +753,23 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // Initial load
 searchBooks();
 initializeDueDateControls();
+if (reportsSelectors.refreshBtn) {
+    reportsSelectors.refreshBtn.addEventListener('click', () => loadReports({ silent: false }));
+}
+if (reportsSelectors.overdueToggleBtn) {
+    reportsSelectors.overdueToggleBtn.addEventListener('click', () => {
+        showOverdueOnly = !showOverdueOnly;
+        setOverdueToggleState();
+        renderCurrentReports();
+    });
+}
+if (reportsSelectors.exportBtn) {
+    reportsSelectors.exportBtn.addEventListener('click', exportCurrentReport);
+}
+if (reportsSelectors.table) {
+    setOverdueToggleState();
+    loadReports({ silent: true });
+}
 
 // Book Details Modal Handler - Initialize after DOM is ready
 function initializeBookModal() {

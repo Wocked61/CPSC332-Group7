@@ -30,6 +30,7 @@ if (!isset($_SESSION['employee_id'])) {
             <button class="tab-btn" data-tab="history">Borrowing History</button>
             <button class="tab-btn" data-tab="inventory">Inventory</button>
             <button class="tab-btn" data-tab="manage-members">Manage Members</button>
+            <button class="tab-btn" data-tab="reports">Reports</button>
         </div>
 
         <!-- Books Tab -->
@@ -109,6 +110,32 @@ if (!isset($_SESSION['employee_id'])) {
                 <button class="btn btn-primary" onclick="openRegisterMemberModal()">+ Register Member</button>
             </div>
             <div id="membersListResults" class="members-list"></div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content">
+            <div class="reports-header">
+                <div>
+                    <h2>Reports</h2>
+                    <p class="reports-subtitle">Review all current borrowings and overdue items.</p>
+                </div>
+                <div class="reports-actions">
+                    <button id="refreshReportsBtn" class="btn btn-secondary">Refresh</button>
+                    <button id="exportReportsBtn" class="btn btn-primary" disabled>Export CSV</button>
+                </div>
+            </div>
+            <div id="reportsMessage" class="form-message" style="display: none;"></div>
+            <div class="reports-controls">
+                <div class="reports-counts">
+                    <span class="reports-count">Borrowed: <strong id="borrowedCountBadge">0</strong></span>
+                    <span class="reports-count">Overdue: <strong id="overdueCountBadge">0</strong></span>
+                </div>
+                <button id="overdueToggleBtn" class="toggle-btn" type="button">Overdue Only</button>
+            </div>
+
+            <div id="reportsTable" class="reports-table-wrapper">
+                <div class="empty-state">No borrowed books at the moment.</div>
+            </div>
         </div>
 
         <!-- Borrowing History Tab -->

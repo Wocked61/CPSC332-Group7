@@ -17,6 +17,7 @@ Database: mysql
 - Issue/return management that highlights due-today and overdue items with badges
 - Borrowing history with filters plus detailed book-level dashboards
 - Inventory dashboard for adding or editing catalog entries
+- Reporting workspace that lists all currently borrowed titles, highlights overdue items, offers an overdue-only toggle, and exports CSV snapshots
 
 ## Pre-Requisites
 Before you begin, install the following: 
@@ -104,6 +105,7 @@ CPSC332-Group7/
 │   ├── logout.php
 │   ├── issue_book.php
 │   ├── get_issued_books.php
+│   ├── get_reports.php
 │   ├── get_member_history.php
 │   ├── get_book_details.php
 │   ├── manage_members.php
