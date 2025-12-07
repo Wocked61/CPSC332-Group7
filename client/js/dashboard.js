@@ -13,7 +13,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
         if (tab === 'books') {
             searchBooks();
-        } else if (tab === 'members') {
+        } else if (tab === 'issues') {
             searchMembers();
             loadAllIssueBooks(); // Auto-load books for issuing
             selectedMember = null;
@@ -27,14 +27,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         } else if (tab === 'inventory') {
             // Load inventory when switching to inventory tab
             loadInventoryBooks();
-        } else if (tab === 'register') {
-            // Focus on first name input when switching to register tab
-            setTimeout(() => document.getElementById('regFirstName').focus(), 100);
+        } else if (tab === 'manage-members') {
+            // Load member list when switching to manage members tab
+            loadMembersList();
         }
     });
 });
 
-// Action tab switching
+// Action tab switching for issues
 document.querySelectorAll('.action-tab').forEach(btn => {
     btn.addEventListener('click', () => {
         const action = btn.dataset.action;
@@ -50,6 +50,8 @@ document.querySelectorAll('.action-tab').forEach(btn => {
         }
     });
 });
+
+
 
 // Search books
 document.getElementById('bookSearch').addEventListener('input', searchBooks);

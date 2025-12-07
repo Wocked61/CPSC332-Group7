@@ -26,10 +26,10 @@ if (!isset($_SESSION['employee_id'])) {
     <div class="main-container">
         <div class="tabs">
             <button class="tab-btn active" data-tab="books">Browse Books</button>
-            <button class="tab-btn" data-tab="members">Manage Issues</button>
+            <button class="tab-btn" data-tab="issues">Manage Issues</button>
             <button class="tab-btn" data-tab="history">Borrowing History</button>
             <button class="tab-btn" data-tab="inventory">Inventory</button>
-            <button class="tab-btn" data-tab="register">Register Member</button>
+            <button class="tab-btn" data-tab="manage-members">Manage Members</button>
         </div>
 
         <!-- Books Tab -->
@@ -47,8 +47,8 @@ if (!isset($_SESSION['employee_id'])) {
             <div id="booksResults" class="results-grid"></div>
         </div>
 
-        <!-- Members/Issues Tab -->
-        <div id="members-tab" class="tab-content">
+        <!-- Issues Tab -->
+        <div id="issues-tab" class="tab-content">
             <div class="two-column">
                 <div class="left-panel">
                     <h3>Select Member</h3>
@@ -85,22 +85,14 @@ if (!isset($_SESSION['employee_id'])) {
             </div>
         </div>
 
-        <!-- Register Member Tab -->
-        <div id="register-tab" class="tab-content">
-            <h2>Register New Member</h2>
-            <form id="registerForm" class="registration-form">
-                <div class="form-group">
-                    <label for="regFirstName">First Name</label>
-                    <input type="text" id="regFirstName" name="first_name" placeholder="Enter first name" required>
-                </div>
-                <div class="form-group">
-                    <label for="regLastName">Last Name</label>
-                    <input type="text" id="regLastName" name="last_name" placeholder="Enter last name" required>
-                </div>
-                <button type="submit" class="btn-register">Register Member</button>
-                <div id="register-message"></div>
-            </form>
-            <div id="registerSuccess" class="register-success"></div>
+        <!-- Manage Members Tab -->
+        <div id="manage-members-tab" class="tab-content">
+            <h2>Manage Members</h2>
+            <div class="members-toolbar">
+                <input type="text" id="memberSearchFilter" placeholder="Search members by name or ID...">
+                <button class="btn btn-primary" onclick="openRegisterMemberModal()">+ Register Member</button>
+            </div>
+            <div id="membersListResults" class="members-list"></div>
         </div>
 
         <!-- Borrowing History Tab -->
@@ -145,6 +137,7 @@ if (!isset($_SESSION['employee_id'])) {
     <script src="js/borrowing_history.js"></script>
     <script src="js/book_details.js"></script>
     <script src="js/inventory_management.js"></script>
+    <script src="js/manage_members.js"></script>
 
     <!-- Book Details Modal -->
     <div id="bookModal" class="modal">
@@ -295,6 +288,86 @@ if (!isset($_SESSION['employee_id'])) {
                         <button type="button" class="btn btn-secondary" onclick="closeEditBookModal()">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content modal-form">
+            <button class="modal-close" onclick="closeEditMemberModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2>Edit Member Details</h2>
+            </div>
+
+            <div class="modal-body">
+                <form id="editMemberForm">
+                    <div class="form-group">
+                        <label for="editMemberFirstName">First Name *</label>
+                        <input type="text" id="editMemberFirstName" required placeholder="First Name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editMemberLastName">Last Name *</label>
+                        <input type="text" id="editMemberLastName" required placeholder="Last Name">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeEditMemberModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Member Modal -->
+    <div id="registerMemberModal" class="modal">
+        <div class="modal-content modal-form">
+            <button class="modal-close" onclick="closeRegisterMemberModal()">&times;</button>
+            
+            <div class="modal-header">
+                <h2>Register New Member</h2>
+            </div>
+
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regFirstName">First Name *</label>
+                        <input type="text" id="regFirstName" name="first_name" placeholder="Enter first name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regLastName">Last Name *</label>
+                        <input type="text" id="regLastName" name="last_name" placeholder="Enter last name" required>
+                    </div>
+
+                    <div id="register-message" class="form-message"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register Member</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeRegisterMemberModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content modal-form modal-confirm">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+            </div>
+
+            <div class="modal-body">
+                <p id="deleteConfirmMessage" class="confirm-message"></p>
+                
+                <div class="form-actions">
+                    <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirmModal()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
