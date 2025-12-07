@@ -19,7 +19,8 @@
 <h2>Installation</h2>
 <ol>step 1: Go into the xampp/htdocs directory </ol>
 <li>Windows (using Command Prompt): </li>
-'''bash
+'''
+bash
 cd C:/xampp/htdocs
 '''
 <li>MacOS (terminal): </li>
@@ -28,7 +29,8 @@ bash
 cd /Applications/XAMPP/xamppfiles/htdocs
 '''
 <ol>step 2: Create a new folder</ol>
-```bash
+```
+bash
 mkdir library_system
 ```
 <ol>step 3: move into the library_system folder and clone the git repository </ol>
@@ -42,14 +44,14 @@ cd CPSC332-Group7
 <li>Start Apache</li>
 <li>Start mySQL</li>
 <ol>step 5: create database</ol>
-<li>open your browser and go to http://localhost/phpmyadmin</li>
+<li>open your browser and go to "http://localhost/phpmyadmin"</li>
 <li>click on the import tab</li>
 <li>click "choose file" and select "database/schema.sql" from the CPSC332-Group7 directory</li>
 <li>click "go" to import</li>
 <ol>step 6: In the CPSC332-Group7 directory create a .env</ol>
 <p> Copy and paste the contents of the .env.example</p>
 <ol>step 7: Access the application</ol>
-<p>In your browser type "http://localhost/library_system/CPSC332-Group7/client/login.php </p><br>
+<p>In your browser type "http://localhost/library_system/CPSC332-Group7/client/login.php" </p><br>
 <p>Type in our demo employee ID (EMP001) </p>
 
 ##Project Structure:
