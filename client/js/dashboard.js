@@ -15,13 +15,18 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
             searchBooks();
         } else if (tab === 'members') {
             searchMembers();
+            loadAllIssueBooks(); // Auto-load books for issuing
             selectedMember = null;
             selectedBook = null;
             selectedIssue = null;
             updateSelectedMemberInfo();
         } else if (tab === 'history') {
             // Focus on first member search input when switching to history tab
+            loadAllHistoryMembers();
             setTimeout(() => document.getElementById('historyMemberSearch').focus(), 100);
+        } else if (tab === 'inventory') {
+            // Load inventory when switching to inventory tab
+            loadInventoryBooks();
         } else if (tab === 'register') {
             // Focus on first name input when switching to register tab
             setTimeout(() => document.getElementById('regFirstName').focus(), 100);
@@ -38,7 +43,9 @@ document.querySelectorAll('.action-tab').forEach(btn => {
         btn.classList.add('active');
         document.getElementById(`${action}-section`).classList.add('active');
 
-        if (action === 'return' && selectedMember) {
+        if (action === 'issue') {
+            loadAllIssueBooks(); // Auto-load books when switching to issue
+        } else if (action === 'return' && selectedMember) {
             loadIssuedBooks();
         }
     });
@@ -70,14 +77,17 @@ function displayBooks(books) {
     }
 
     container.innerHTML = books.map(book => `
-        <div class="book-card">
+        <div class="book-card" onclick="openBookDetails('${book.isbn}')">
             <h4>${book.title}</h4>
             <p><strong>ISBN:</strong> ${book.isbn}</p>
             <p><strong>Author:</strong> ${book.author}</p>
             <p><strong>Category:</strong> ${book.category}</p>
-            <span class="status ${book.available ? 'available' : 'unavailable'}">
-                ${book.available ? 'Available' : 'Issued'}
-            </span>
+            <div class="book-stock-status">
+                <span class="stock-badge ${book.available ? 'in-stock' : 'out-of-stock'}">
+                    ${book.available ? '✓ ' + book.available_copies + ' available' : '✗ Out of stock'}
+                </span>
+                <span class="total-copies">${book.quantity} total</span>
+            </div>
         </div>
     `).join('');
 }
@@ -127,6 +137,10 @@ function selectMember(id, firstName, lastName) {
     if (activeAction === 'return' && selectedMember) {
         loadIssuedBooks();
     }
+
+    // Update issue button state when member is selected
+    const issueBtn = document.getElementById('issueBtn');
+    issueBtn.disabled = !(selectedMember && selectedBook);
 }
 
 function updateSelectedMemberInfo() {
@@ -156,12 +170,17 @@ async function searchIssueBooks() {
     const query = document.getElementById('issueBookSearch').value;
 
     try {
-        const response = await fetch(`../server/search_books.php?query=${encodeURIComponent(query)}&available=true`);
+        const response = await fetch(`../server/search_books.php?query=${encodeURIComponent(query)}`);
         const books = await response.json();
         displayIssueBooks(books);
     } catch (error) {
         console.error('Error searching books:', error);
     }
+}
+
+// Auto-load books when tab is switched to issue
+function loadAllIssueBooks() {
+    searchIssueBooks();
 }
 
 function displayIssueBooks(books) {
@@ -172,14 +191,26 @@ function displayIssueBooks(books) {
         return;
     }
 
-    container.innerHTML = books.map(book => `
-        <div class="book-item ${selectedBook?.isbn === book.isbn ? 'selected' : ''}" 
-             onclick="selectBook('${book.isbn}', '${book.title.replace(/'/g, "\\'")}')">
-            <h4>${book.title}</h4>
-            <p>ISBN: ${book.isbn}</p>
-            <p>Author: ${book.author}</p>
-        </div>
-    `).join('');
+    console.log('Books data:', books); // Debug log
+
+    container.innerHTML = books.map(book => {
+        const availableCopies = book.available_copies !== undefined ? book.available_copies : 0;
+        const isInStock = availableCopies > 0;
+
+        console.log(`Book: ${book.title}, Available: ${availableCopies}, In Stock: ${isInStock}`); // Debug log
+
+        return `
+            <div class="book-item ${selectedBook?.isbn === book.isbn ? 'selected' : ''}" 
+                 onclick="selectBook('${book.isbn}', '${book.title.replace(/'/g, "\\'")}')">
+                <h4>${book.title}</h4>
+                <p>ISBN: ${book.isbn}</p>
+                <p>Author: ${book.author}</p>
+                <p class="stock-info ${isInStock ? 'in-stock' : 'out-of-stock'}">
+                    ${isInStock ? '✓ ' + availableCopies + ' available' : '✗ Out of stock'}
+                </p>
+            </div>
+        `;
+    }).join('');
 }
 
 function selectBook(isbn, title) {
@@ -308,3 +339,135 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 
 // Initial load
 searchBooks();
+
+// Book Details Modal Handler - Initialize after DOM is ready
+function initializeBookModal() {
+    const bookModal = document.getElementById('bookModal');
+    if (!bookModal) {
+        console.error('Book modal element not found');
+        return;
+    }
+
+    const modalClose = document.querySelector('.modal-close');
+
+    if (modalClose) {
+        // Close modal when X is clicked
+        modalClose.addEventListener('click', () => {
+            bookModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === bookModal) {
+            bookModal.style.display = 'none';
+        }
+    });
+}
+
+// Call after a brief delay to ensure DOM is fully ready
+setTimeout(initializeBookModal, 100);
+
+// Open book details modal
+function openBookDetails(isbn) {
+    const bookModal = document.getElementById('bookModal');
+    if (!bookModal) {
+        console.error('Book modal element not found');
+        return;
+    }
+    bookModal.style.display = 'block';
+    loadBookDetails(isbn);
+}
+
+async function loadBookDetails(isbn) {
+    try {
+        const response = await fetch(`../server/get_book_details.php?isbn=${encodeURIComponent(isbn)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayBookDetails(data);
+        } else {
+            console.error('Error loading book details:', data.error);
+        }
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+    }
+}
+
+function displayBookDetails(data) {
+    const book = data.book;
+    const stats = data.stats;
+    const currentBorrows = data.current_borrows;
+    const history = data.history;
+
+    // Update header
+    document.getElementById('modalBookTitle').textContent = book.title;
+    document.getElementById('modalBookIsbn').textContent = `ISBN: ${book.isbn}`;
+
+    // Update book info
+    document.getElementById('modalIsbn').textContent = book.isbn;
+    document.getElementById('modalAuthor').textContent = book.author;
+    document.getElementById('modalCategory').textContent = book.category;
+
+    // Update inventory
+    document.getElementById('modalTotalQty').textContent = stats.total;
+    document.getElementById('modalAvailableQty').textContent = stats.available;
+    document.getElementById('modalCheckedOutQty').textContent = stats.checked_out;
+
+    // Update current borrowings
+    const currentBorrowsContainer = document.getElementById('modalCurrentBorrows');
+    if (currentBorrows.length === 0) {
+        currentBorrowsContainer.innerHTML = '<div class="empty-state">No one currently has this book</div>';
+    } else {
+        currentBorrowsContainer.innerHTML = currentBorrows.map(borrow => `
+            <div class="borrow-card ${borrow.status}">
+                <div class="borrow-header">
+                    <strong>${borrow.first_name} ${borrow.last_name}</strong>
+                    <span class="borrow-status ${borrow.status}">
+                        ${borrow.status === 'overdue' ? '⚠️ Overdue' : '📖 Current'}
+                    </span>
+                </div>
+                <div class="borrow-details">
+                    <p>Member ID: ${borrow.member_id}</p>
+                    <p>Issued: ${new Date(borrow.issue_date).toLocaleDateString()}</p>
+                    <p>Days Issued: ${borrow.days_issued}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Update history table
+    const historyContainer = document.getElementById('modalHistoryTable');
+    if (history.length === 0) {
+        historyContainer.innerHTML = '<div class="empty-state">No borrowing history</div>';
+    } else {
+        historyContainer.innerHTML = `
+            <table class="modal-history-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Issue Date</th>
+                        <th>Return Date</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${history.map(record => `
+                        <tr>
+                            <td>${record.first_name} ${record.last_name}</td>
+                            <td>${new Date(record.issue_date).toLocaleDateString()}</td>
+                            <td>${record.return_date ? new Date(record.return_date).toLocaleDateString() : '-'}</td>
+                            <td>${record.days_borrowed}</td>
+                            <td>
+                                <span class="badge ${record.status}">
+                                    ${record.status === 'issued' ? 'Issued' : 'Returned'}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+}

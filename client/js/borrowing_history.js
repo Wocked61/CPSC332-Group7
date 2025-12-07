@@ -4,6 +4,25 @@ let historyFilter = 'all';
 // Search members for history
 document.getElementById('historyMemberSearch').addEventListener('input', searchHistoryMembers);
 
+// Load all members when page loads (for initial display)
+async function loadAllHistoryMembers() {
+    try {
+        const response = await fetch(`../server/search_members.php?query=`);
+        const members = await response.json();
+        displayHistoryMembers(members);
+    } catch (error) {
+        console.error('Error loading members:', error);
+    }
+}
+
+// Initialize selected member info as hidden
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedInfo = document.getElementById('selectedHistoryMemberInfo');
+    if (selectedInfo) {
+        selectedInfo.style.display = 'none';
+    }
+});
+
 async function searchHistoryMembers() {
     const query = document.getElementById('historyMemberSearch').value;
 

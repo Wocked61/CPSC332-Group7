@@ -131,6 +131,7 @@ select:focus {
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .book-card:hover {
@@ -166,6 +167,39 @@ select:focus {
 .status.unavailable {
     background-color: #ffebee;
     color: #c62828;
+}
+
+.book-stock-status {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.stock-badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.stock-badge.in-stock {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.stock-badge.out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.total-copies {
+    font-size: 11px;
+    color: #666;
+    background-color: #f5f5f5;
+    padding: 3px 6px;
+    border-radius: 3px;
 }
 
 .two-column {
@@ -230,6 +264,28 @@ select:focus {
     font-size: 13px;
     color: #666;
     margin: 3px 0;
+}
+
+.book-item p.stock-info,
+.stock-info {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.book-item p.stock-info.in-stock,
+.stock-info.in-stock {
+    background-color: #e8f5e9;
+    color: #2e7d32 !important;
+}
+
+.book-item p.stock-info.out-of-stock,
+.stock-info.out-of-stock {
+    background-color: #ffebee;
+    color: #c62828 !important;
 }
 
 .selected-info {
@@ -526,4 +582,521 @@ select:focus {
 .status-badge.returned {
     background-color: #e3f2fd;
     color: #1565c0;
+}
+
+/* Book Details Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 30px auto;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+    width: 90%;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #a0826d;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: #8a6f5c;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #a0826d 0%, #8a6f5c 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+}
+
+.modal-isbn {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.modal-body {
+    padding: 30px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.modal-section h3 {
+    color: #a0826d;
+    font-size: 18px;
+    margin: 0 0 15px 0;
+}
+
+.book-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    color: #333;
+    font-size: 14px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.inventory-card {
+    padding: 20px;
+    border-radius: 6px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.inventory-card.total {
+    border-color: #a0826d;
+    background-color: rgba(160, 130, 109, 0.05);
+}
+
+.inventory-card.available {
+    border-color: #2e7d32;
+    background-color: rgba(46, 125, 50, 0.05);
+}
+
+.inventory-card.checked-out {
+    border-color: #c62828;
+    background-color: rgba(198, 40, 40, 0.05);
+}
+
+.inventory-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.inventory-card.total .inventory-number {
+    color: #a0826d;
+}
+
+.inventory-card.available .inventory-number {
+    color: #2e7d32;
+}
+
+.inventory-card.checked-out .inventory-number {
+    color: #c62828;
+}
+
+.inventory-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.borrowing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.borrow-card {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+}
+
+.borrow-card.overdue {
+    border-color: #ffb74d;
+    background-color: #fff3cd;
+}
+
+.borrow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.borrow-header strong {
+    color: #333;
+}
+
+.borrow-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 3px;
+}
+
+.borrow-status.current {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.borrow-status.overdue {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.borrow-details {
+    font-size: 13px;
+    color: #666;
+}
+
+.borrow-details p {
+    margin: 4px 0;
+}
+
+.history-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.modal-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 13px;
+}
+
+.modal-history-table thead {
+    background-color: #f5f5f5;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modal-history-table th {
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.modal-history-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #666;
+}
+
+.modal-history-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge.issued {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge.returned {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    .modal-header {
+        padding: 20px;
+    }
+
+    .modal-header h2 {
+        font-size: 22px;
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 80vh;
+    }
+
+    .inventory-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .book-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Inventory Management Styles */
+.inventory-info {
+    background-color: #e8f5e9;
+    border-left: 4px solid #2e7d32;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    color: #2e7d32;
+}
+
+.inventory-results {
+    overflow-x: auto;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 13px;
+}
+
+.inventory-table thead {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.inventory-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.inventory-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #666;
+}
+
+.inventory-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.inventory-table code {
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+}
+
+.badge-success {
+    display: inline-block;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.badge-warning {
+    display: inline-block;
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    color: #333;
+}
+
+.btn-add-copy {
+    background-color: #a0826d;
+    color: white;
+    border-color: #a0826d;
+    font-weight: 500;
+}
+
+.btn-add-copy:hover {
+    background-color: #8a6f5c;
+    border-color: #8a6f5c;
+}
+
+.btn-edit {
+    background-color: #2196F3;
+    color: white;
+    border-color: #2196F3;
+    font-weight: 500;
+}
+
+.btn-edit:hover {
+    background-color: #1976D2;
+    border-color: #1976D2;
+}
+
+.btn-remove {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+    font-weight: 500;
+}
+
+.btn-remove:hover {
+    background-color: #da190b;
+    border-color: #da190b;
+}
+
+.inventory-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.inventory-toolbar {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #a0826d;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #8a6f5c;
+}
+
+.btn-secondary {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #d0d0d0;
+}
+
+/* Modal Form Styles */
+.modal-form {
+    width: 90%;
+    max-width: 500px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #a0826d;
+    box-shadow: 0 0 0 3px rgba(160, 130, 109, 0.1);
+}
+
+.form-group input:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+.form-actions button {
+    flex: 1;
 }

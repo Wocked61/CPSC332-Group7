@@ -18,32 +18,37 @@ if (empty($memberId) || empty($isbn)) {
     exit();
 }
 
-// Check if book is available
-$stmt = $conn->prepare("SELECT available FROM books WHERE isbn = ?");
+// Check if book exists and is available
+$stmt = $conn->prepare("SELECT b.quantity, COUNT(CASE WHEN i.status = 'issued' THEN 1 END) as checked_out
+                        FROM books b
+                        LEFT JOIN issues i ON b.isbn = i.isbn AND i.status = 'issued'
+                        WHERE b.isbn = ?
+                        GROUP BY b.isbn, b.quantity");
 $stmt->bind_param("s", $isbn);
 $stmt->execute();
 $result = $stmt->get_result();
 $book = $result->fetch_assoc();
+$stmt->close();
 
-if (!$book || !$book['available']) {
-    echo json_encode(['success' => false, 'message' => 'Book is not available']);
-    $stmt->close();
+if (!$book) {
+    echo json_encode(['success' => false, 'message' => 'Book not found']);
     $conn->close();
     exit();
 }
-$stmt->close();
+
+$available = $book['quantity'] - $book['checked_out'];
+
+if ($available <= 0) {
+    echo json_encode(['success' => false, 'message' => 'No copies of this book are available']);
+    $conn->close();
+    exit();
+}
 
 // Issue the book
-$stmt = $conn->prepare("INSERT INTO issues (member_id, isbn) VALUES (?, ?)");
+$stmt = $conn->prepare("INSERT INTO issues (member_id, isbn, status) VALUES (?, ?, 'issued')");
 $stmt->bind_param("is", $memberId, $isbn);
 
 if ($stmt->execute()) {
-    // Update book availability
-    $updateStmt = $conn->prepare("UPDATE books SET available = 0 WHERE isbn = ?");
-    $updateStmt->bind_param("s", $isbn);
-    $updateStmt->execute();
-    $updateStmt->close();
-    
     echo json_encode(['success' => true]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to issue book']);
