@@ -1,43 +1,37 @@
 <?php
-session_start();
 require_once '../database/db_connect.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['employee_id'])) {
-    echo json_encode(['error' => 'Unauthorized']);
-    exit();
-}
-
-$query = $_GET['query'] ?? '';
+$query = trim($_GET['query'] ?? '');
 $filter = $_GET['filter'] ?? 'all';
 $availableOnly = isset($_GET['available']) && $_GET['available'] === 'true';
 
-// Get books with quantity and checked out count
 $sql = "SELECT 
-            b.isbn, 
-            b.title, 
-            b.author, 
+            b.isbn,
+            b.title,
+            b.author,
             b.category,
             b.quantity,
-            COUNT(CASE WHEN i.status = 'issued' THEN 1 END) as checked_out
+            COUNT(CASE WHEN i.status = 'issued' THEN 1 END) AS checked_out
         FROM books b
         LEFT JOIN issues i ON b.isbn = i.isbn AND i.status = 'issued'
-        WHERE 1=1";
+        WHERE 1 = 1";
 
 $params = [];
-$types = "";
+$types = '';
 
-if (!empty($query)) {
+if ($query !== '') {
+    $searchTerm = "%$query%";
+
     if ($filter === 'all') {
-        $sql .= " AND (b.isbn LIKE ? OR b.title LIKE ? OR b.author LIKE ? OR b.category LIKE ?)";
-        $searchTerm = "%$query%";
+        $sql .= " AND (b.isbn LIKE ? OR b.title LIKE ? OR b.author LIKE ? OR b.category LIKE ? )";
         $params = [$searchTerm, $searchTerm, $searchTerm, $searchTerm];
-        $types = "ssss";
-    } else {
+        $types = 'ssss';
+    } elseif (in_array($filter, ['isbn', 'title', 'author', 'category'], true)) {
         $sql .= " AND b.$filter LIKE ?";
-        $params = ["%$query%"];
-        $types = "s";
+        $params[] = $searchTerm;
+        $types = 's';
     }
 }
 
@@ -50,21 +44,29 @@ if ($availableOnly) {
 $sql .= " ORDER BY b.title";
 
 $stmt = $conn->prepare($sql);
+
+if ($stmt === false) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Unable to prepare catalog query.']);
+    exit();
+}
+
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
 }
+
 $stmt->execute();
 $result = $stmt->get_result();
 
 $books = [];
 while ($row = $result->fetch_assoc()) {
-    $row['available'] = ($row['quantity'] - $row['checked_out']) > 0;
-    $row['available_copies'] = $row['quantity'] - $row['checked_out'];
+    $availableCopies = (int)$row['quantity'] - (int)$row['checked_out'];
+    $row['available_copies'] = max($availableCopies, 0);
+    $row['available'] = $availableCopies > 0;
     $books[] = $row;
 }
 
-echo json_encode($books);
-
 $stmt->close();
 $conn->close();
-?>
+
+echo json_encode($books);

@@ -1,23 +1,28 @@
 <?php
 session_start();
-require_once '../database/db_connect.php';
+require_once '../../database/db_connect.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['employee_id'])) {
+if (!isset($_SESSION['member_id'])) {
+    http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit();
 }
 
 $query = $_GET['query'] ?? '';
 $filter = $_GET['filter'] ?? 'all';
-$availableOnly = isset($_GET['available']) && $_GET['available'] === 'true';
+$availableOnly = isset($_GET['availableOnly']) && $_GET['availableOnly'] === 'true';
 
-// Get books with quantity and checked out count
+$allowedFilters = ['all', 'isbn', 'title', 'author', 'category'];
+if (!in_array($filter, $allowedFilters, true)) {
+    $filter = 'all';
+}
+
 $sql = "SELECT 
-            b.isbn, 
-            b.title, 
-            b.author, 
+            b.isbn,
+            b.title,
+            b.author,
             b.category,
             b.quantity,
             COUNT(CASE WHEN i.status = 'issued' THEN 1 END) as checked_out
@@ -26,18 +31,18 @@ $sql = "SELECT
         WHERE 1=1";
 
 $params = [];
-$types = "";
+$types = '';
 
 if (!empty($query)) {
     if ($filter === 'all') {
         $sql .= " AND (b.isbn LIKE ? OR b.title LIKE ? OR b.author LIKE ? OR b.category LIKE ?)";
         $searchTerm = "%$query%";
         $params = [$searchTerm, $searchTerm, $searchTerm, $searchTerm];
-        $types = "ssss";
+        $types = 'ssss';
     } else {
         $sql .= " AND b.$filter LIKE ?";
         $params = ["%$query%"];
-        $types = "s";
+        $types = 's';
     }
 }
 
@@ -59,12 +64,12 @@ $result = $stmt->get_result();
 $books = [];
 while ($row = $result->fetch_assoc()) {
     $row['available'] = ($row['quantity'] - $row['checked_out']) > 0;
-    $row['available_copies'] = $row['quantity'] - $row['checked_out'];
+    $row['available_copies'] = max($row['quantity'] - $row['checked_out'], 0);
     $books[] = $row;
 }
 
-echo json_encode($books);
-
 $stmt->close();
 $conn->close();
+
+echo json_encode($books);
 ?>

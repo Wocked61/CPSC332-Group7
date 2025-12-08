@@ -23,6 +23,14 @@ try {
     }
     
     $conn->set_charset("utf8mb4");
+
+    $migrationsFile = __DIR__ . '/migrations.php';
+    if (file_exists($migrationsFile)) {
+        require_once $migrationsFile;
+        if (function_exists('runMigrations')) {
+            runMigrations($conn);
+        }
+    }
 } catch (Exception $e) {
     die(json_encode(['error' => $e->getMessage()]));
 }

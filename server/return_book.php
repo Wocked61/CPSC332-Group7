@@ -17,8 +17,8 @@ if (empty($issueId)) {
     exit();
 }
 
-// Get the ISBN for this issue
-$stmt = $conn->prepare("SELECT isbn FROM issues WHERE issue_id = ?");
+// Get the issue details
+$stmt = $conn->prepare("SELECT issue_id, status FROM issues WHERE issue_id = ?");
 $stmt->bind_param("i", $issueId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -31,19 +31,17 @@ if (!$issue) {
     exit();
 }
 
-$isbn = $issue['isbn'];
+if ($issue['status'] === 'returned') {
+    echo json_encode(['success' => false, 'message' => 'This book has already been returned']);
+    $conn->close();
+    exit();
+}
 
 // Update the issue status
 $stmt = $conn->prepare("UPDATE issues SET status = 'returned', return_date = NOW() WHERE issue_id = ?");
 $stmt->bind_param("i", $issueId);
 
 if ($stmt->execute()) {
-    // Update book availability
-    $updateStmt = $conn->prepare("UPDATE books SET available = 1 WHERE isbn = ?");
-    $updateStmt->bind_param("s", $isbn);
-    $updateStmt->execute();
-    $updateStmt->close();
-    
     echo json_encode(['success' => true]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to return book']);
