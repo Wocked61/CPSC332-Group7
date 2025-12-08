@@ -1,15 +1,22 @@
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+async function handleRegisterMemberSubmit(e) {
+    if (e) {
+        e.preventDefault();
+    }
 
-    const firstName = document.getElementById('regFirstName').value.trim();
-    const lastName = document.getElementById('regLastName').value.trim();
+    const firstNameInput = document.getElementById('regFirstName');
+    const lastNameInput = document.getElementById('regLastName');
     const messageDiv = document.getElementById('register-message');
 
-    // Clear previous messages
+    if (!firstNameInput || !lastNameInput || !messageDiv) {
+        return;
+    }
+
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+
     messageDiv.textContent = '';
     messageDiv.className = '';
 
-    // Validation
     if (!firstName || !lastName) {
         messageDiv.textContent = 'Please enter both first and last name';
         messageDiv.className = 'error';
@@ -31,14 +38,11 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         const data = await response.json();
 
         if (data.success) {
-            // Show success notification
             showNotification(`Member registered successfully! Member ID: ${data.member_id}`, 'success');
-
-            // Close modal
             closeRegisterMemberModal();
 
-            // Reload members list if on manage members tab
-            if (document.getElementById('manage-members-tab').classList.contains('active')) {
+            const manageMembersTab = document.getElementById('manage-members-tab');
+            if (manageMembersTab?.classList.contains('active')) {
                 loadMembersList();
             }
         } else {
@@ -50,4 +54,19 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         messageDiv.className = 'error';
         console.error('Error:', error);
     }
-});
+}
+
+function initializeRegisterMemberForm() {
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegisterMemberSubmit);
+    }
+
+    const registerButton = document.getElementById('registerMemberBtn');
+    if (registerButton) {
+        registerButton.addEventListener('click', handleRegisterMemberSubmit);
+    }
+}
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', initializeRegisterMemberForm);

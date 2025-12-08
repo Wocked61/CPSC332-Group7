@@ -121,11 +121,23 @@ function closeEditMemberModal() {
 }
 
 // Submit edit member form
-document.getElementById('editMemberForm')?.addEventListener('submit', async function (e) {
-    e.preventDefault();
+async function handleEditMemberSubmit(e) {
+    if (e) {
+        e.preventDefault();
+    }
 
     const firstName = document.getElementById('editMemberFirstName').value;
     const lastName = document.getElementById('editMemberLastName').value;
+
+    if (!firstName || !lastName) {
+        showNotification('Please enter both first and last name', 'error');
+        return;
+    }
+
+    if (!editingMemberId) {
+        showNotification('No member selected for editing', 'error');
+        return;
+    }
 
     try {
         const formData = new FormData();
@@ -152,7 +164,10 @@ document.getElementById('editMemberForm')?.addEventListener('submit', async func
         console.error('Error updating member:', error);
         showNotification('Error updating member', 'error');
     }
-});
+}
+
+document.getElementById('editMemberForm')?.addEventListener('submit', handleEditMemberSubmit);
+document.getElementById('saveMemberBtn')?.addEventListener('click', handleEditMemberSubmit);
 
 // Delete Confirmation Modal
 let pendingDeleteMemberId = null;

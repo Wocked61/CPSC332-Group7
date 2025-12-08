@@ -208,13 +208,13 @@ if (!isset($_SESSION['employee_id'])) {
         </div>
     </div>
 
-    <script src="js/dashboard.js"></script>
-    <script src="js/register_member.js"></script>
-    <script src="js/borrowing_history.js"></script>
-    <script src="js/book_details.js"></script>
-    <script src="js/inventory_management.js"></script>
-    <script src="js/manage_members.js"></script>
-    <script src="js/reservations.js"></script>
+    <script src="js/dashboard.js" defer></script>
+    <script src="js/register_member.js" defer></script>
+    <script src="js/borrowing_history.js" defer></script>
+    <script src="js/book_details.js" defer></script>
+    <script src="js/inventory_management.js" defer></script>
+    <script src="js/manage_members.js" defer></script>
+    <script src="js/reservations.js" defer></script>
 
     <!-- Book Details Modal -->
     <div id="bookModal" class="modal">
@@ -391,7 +391,7 @@ if (!isset($_SESSION['employee_id'])) {
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" id="saveMemberBtn" class="btn btn-primary">Save Changes</button>
                         <button type="button" class="btn btn-secondary" onclick="closeEditMemberModal()">Cancel</button>
                     </div>
                 </form>
@@ -423,7 +423,7 @@ if (!isset($_SESSION['employee_id'])) {
                     <div id="register-message" class="form-message"></div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Register Member</button>
+                        <button type="submit" id="registerMemberBtn" class="btn btn-primary">Register Member</button>
                         <button type="button" class="btn btn-secondary" onclick="closeRegisterMemberModal()">Cancel</button>
                     </div>
                 </form>
