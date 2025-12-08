@@ -70,7 +70,16 @@ step 6: In the CPSC332-Group7 directory create a .env
 Copy and paste the contents of the .env.example
 
 step 7: Access the application
-Visit "http://localhost/library_system/CPSC332-Group7/client/" to browse the live catalog and check availability without logging in. Use the subtle **Member login** dropdown in the upper-right corner to enter your member ID (demo IDs start at 101). A small link in the footer quietly directs staff to the employee dashboard (demo employee ID: EMP001).
+
+In your browser type "http://localhost/library_system/client/index.php" 
+
+Usage:
+Members login on main page
+Employee login page linked at the bottom of main page
+
+
+Type in our demo employee ID (EMP001)
+
 
 ### Upgrading an existing database
 If you're updating an earlier deployment that didn't track due dates, run the following SQL before using the new UI so every issue receives a default 14-day window:
